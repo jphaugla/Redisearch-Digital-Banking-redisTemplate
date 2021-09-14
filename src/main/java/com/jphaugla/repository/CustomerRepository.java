@@ -3,18 +3,17 @@ package com.jphaugla.repository;
 import com.jphaugla.domain.Customer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.mesclun.RedisModulesCommands;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -53,7 +52,7 @@ public class CustomerRepository{
 	}
 
 	public Customer get(String customerId) {
-		logger.info("in CustmerRepository.get with customer id=" + customerId);
+		logger.info("in CustomerRepository.get with customer id=" + customerId);
 		String fullKey = "Customer:" + customerId;
 		Map<Object, Object> customerHash = redisTemplateR1.opsForHash().entries(fullKey);
 		Customer customer = mapper.convertValue(customerHash, Customer.class);

@@ -50,13 +50,13 @@ public class RedisConfig {
     @Bean(name = "redisConnectionFactory")
     @Primary
     public LettuceConnectionFactory redisConnectionFactory() {
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .commandTimeout(redisCommandTimeout).build();
+        LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(redisCommandTimeout).poolConfig(new GenericObjectPoolConfig()).build();
         RedisStandaloneConfiguration redisServerConf = new RedisStandaloneConfiguration();
         redisServerConf.setHostName(env.getProperty("spring.redis.host"));
         redisServerConf.setPort(Integer.parseInt(env.getProperty("spring.redis.port")));
         redisServerConf.setPassword(RedisPassword.of(env.getProperty("spring.redis.password")));
-        return new LettuceConnectionFactory(redisServerConf,clientConfig);
+        return new LettuceConnectionFactory(redisServerConf, clientConfig);
     }
 
     @Bean

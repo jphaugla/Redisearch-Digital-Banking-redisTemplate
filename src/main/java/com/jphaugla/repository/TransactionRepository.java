@@ -1,27 +1,70 @@
 package com.jphaugla.repository;
 
-
 import com.jphaugla.domain.Transaction;
-import org.springframework.data.repository.CrudRepository;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-public interface TransactionRepository extends CrudRepository<Transaction, String> {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 
-	List<Transaction> findByMerchantAndAccountNo(String merchant, String accountNo);
+import org.springframework.stereotype.Repository;
+@Repository
 
-	// does not work to query between in redis
-	List<Transaction> findByMerchantAndAccountNoAndPostingDateBetween(String merchant,
-																	  String accountNo, Date startDate, Date endDate);
+public class TransactionRepository{
+	private static final String KEY = "Transaction";
 
-	List<Transaction> findByTransactionReturn(String transactionReturn);
-	List<Transaction> findByStatus(String transactionStatus);
-	//  cannot do two columns as will get cross-slot error on the intersection
-	List<Transaction> findByStatusAndAcctNo(String transactionStatus, String accountNo);
-	//  cannot do two columns as will get cross-slot error on the intersection
-	List<Transaction> findByMerchantAccount(String transactionStatus, String merchant);
+
+	final Logger logger = LoggerFactory.getLogger(TransactionRepository.class);
+	ObjectMapper mapper = new ObjectMapper();
+
+	@Autowired
+	@Qualifier("redisTemplateW1")
+	private RedisTemplate<Object, Object> redisTemplateW1;
+
+	@Autowired
+	@Qualifier("redisTemplateR1")
+	private RedisTemplate<Object, Object>  redisTemplateR1;
+
+	public TransactionRepository() {
+
+		logger.info("TransactionRepository constructor");
+	}
+
+	public String create(Transaction transaction) {
+		if (transaction.getInitialDate() == null) {
+			Long currentTimeMillis = System.currentTimeMillis();
+			transaction.setInitialDate(currentTimeMillis);
+		}
+
+		Map<Object, Object> transactionHash = mapper.convertValue(transaction, Map.class);
+		redisTemplateW1.opsForHash().putAll("Transaction:" + transaction.getTranId(), transactionHash);
+		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);
+		logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
+		return "Success\n";
+	}
+
+	public String createAll(List<Transaction> transactionList) {
+		for (Transaction transaction : transactionList) {
+			create(transaction);
+		}
+		return "Success\n";
+	}
+
+	public Transaction get(String transactionId) {
+		logger.info("in TransactionRepository.get with transaction id=" + transactionId);
+		String fullKey = "Transaction:" + transactionId;
+		Map<Object, Object> transactionHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Transaction transaction = mapper.convertValue(transactionHash, Transaction.class);
+		return (transaction);
+	}
 
 
 }

@@ -15,39 +15,34 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(6)
 @Slf4j
-public class AccountIndex implements CommandLineRunner {
+public class PhoneIndex implements CommandLineRunner {
 
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
-  @Value("${app.accountSearchIndexName}")
-  private String accountSearchIndexName;
+  @Value("${app.phoneSearchIndexName}")
+  private String phoneSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> accountCommands = connection.sync();
+    RedisModulesCommands<String,String> phoneCommands = connection.sync();
     try {
-      accountCommands.indexInfo(accountSearchIndexName);
+      phoneCommands.indexInfo(phoneSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder()//
-            .prefix(accountSearchIndexName + ':').build();
+            .prefix(phoneSearchIndexName + ':').build();
 
+        Field phoneNumber = Field.text("phoneNumber").build();
         Field customerId = Field.text("customerId").build();
-        Field accountType = Field.text("accountType").build();
-        Field accountOriginSystem = Field.text("accountOriginSystem").build();
-        Field accountStatus = Field.text("accountStatus").build();
-        Field cardNum = Field.text("cardNum").build();
-        Field openDate = Field.numeric("openDate").sortable(true).build();
-        Field lastUpdated = Field.numeric("lastUpdated").sortable(true).build();
-         accountCommands.create(
-          accountSearchIndexName, //
+         phoneCommands.create(
+          phoneSearchIndexName, //
           options, //
-                customerId, accountType, accountOriginSystem, accountStatus, cardNum, openDate, lastUpdated
+                phoneNumber, customerId
         );
-        log.info(">>>> Created " + accountSearchIndexName + " Search Index...");
+        log.info(">>>> Created " + phoneSearchIndexName + " Search Index...");
       }
     }
   }

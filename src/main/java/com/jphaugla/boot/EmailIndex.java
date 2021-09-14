@@ -15,39 +15,34 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(6)
 @Slf4j
-public class AccountIndex implements CommandLineRunner {
+public class EmailIndex implements CommandLineRunner {
 
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
-  @Value("${app.accountSearchIndexName}")
-  private String accountSearchIndexName;
+  @Value("${app.emailSearchIndexName}")
+  private String emailSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> accountCommands = connection.sync();
+    RedisModulesCommands<String,String> emailCommands = connection.sync();
     try {
-      accountCommands.indexInfo(accountSearchIndexName);
+      emailCommands.indexInfo(emailSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder()//
-            .prefix(accountSearchIndexName + ':').build();
+            .prefix(emailSearchIndexName + ':').build();
 
+        Field emailAddress = Field.text("emailAddress").build();
         Field customerId = Field.text("customerId").build();
-        Field accountType = Field.text("accountType").build();
-        Field accountOriginSystem = Field.text("accountOriginSystem").build();
-        Field accountStatus = Field.text("accountStatus").build();
-        Field cardNum = Field.text("cardNum").build();
-        Field openDate = Field.numeric("openDate").sortable(true).build();
-        Field lastUpdated = Field.numeric("lastUpdated").sortable(true).build();
-         accountCommands.create(
-          accountSearchIndexName, //
+         emailCommands.create(
+          emailSearchIndexName, //
           options, //
-                customerId, accountType, accountOriginSystem, accountStatus, cardNum, openDate, lastUpdated
+                emailAddress, customerId
         );
-        log.info(">>>> Created " + accountSearchIndexName + " Search Index...");
+        log.info(">>>> Created " + emailSearchIndexName + " Search Index...");
       }
     }
   }

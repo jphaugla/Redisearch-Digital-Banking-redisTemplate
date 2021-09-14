@@ -38,26 +38,26 @@ public class AsyncService {
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeAllTransaction(List<Transaction> transactions) {
-        transactionRepository.saveAll(transactions);
+        transactionRepository.createAll(transactions);
         return CompletableFuture.completedFuture(0);
     }
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeTransaction(Transaction transaction) {
-        transactionRepository.save(transaction);
+        transactionRepository.create(transaction);
         return CompletableFuture.completedFuture(0);
     }
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeAllAccounts(List<Account> accounts){
         // Integer count = accounts.size();
-        accountRepository.saveAll(accounts);
+        accountRepository.createAll(accounts);
         return CompletableFuture.completedFuture(0);
     }
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeAccounts(Account account){
         // Integer count = accounts.size();
-        accountRepository.save(account);
+        accountRepository.create(account);
         return CompletableFuture.completedFuture(0);
     }
 
@@ -68,14 +68,14 @@ public class AsyncService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<Integer> writePhone(PhoneNumber phoneNumber) {
-        phoneRepository.save(phoneNumber);
+    public CompletableFuture<Integer> writePhone(Phone phoneNumber) {
+        phoneRepository.create(phoneNumber);
         return CompletableFuture.completedFuture(0);
     }
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeEmail(Email email) {
-        emailRepository.save(email);
+        emailRepository.create(email);
         return CompletableFuture.completedFuture(0);
     }
 
@@ -111,7 +111,7 @@ public class AsyncService {
                 for (Transaction tx : transactionList) {
                     if(tx.getPostingDate() != null) {
                         String keyname="Trans:PostDate:" + tx.getAccountNo();
-                        connection.zAdd(keyname.getBytes(),  tx.getPostingDate().getTime(),
+                        connection.zAdd(keyname.getBytes(),  tx.getPostingDate(),
                                 tx.getTranId().getBytes());
                     }
                 }

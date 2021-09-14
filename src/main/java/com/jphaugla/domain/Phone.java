@@ -1,6 +1,8 @@
 package com.jphaugla.domain;
 import lombok.*;
+
 import java.io.Serializable;
+
 
 @Data
 @AllArgsConstructor
@@ -8,8 +10,9 @@ import java.io.Serializable;
 @Getter
 @Setter
 
-public class Email implements Serializable {
-        private String emailAddress;
-        private String emailLabel;
+public class Phone implements Serializable {
+
+        private String phoneNumber;
+        private String phoneLabel;
         private String customerId;
 }

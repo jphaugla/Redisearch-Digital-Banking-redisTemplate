@@ -15,39 +15,34 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(6)
 @Slf4j
-public class AccountIndex implements CommandLineRunner {
+public class TransactionReturnIndex implements CommandLineRunner {
 
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
-  @Value("${app.accountSearchIndexName}")
-  private String accountSearchIndexName;
+  @Value("${app.transactionReturnSearchIndexName}")
+  private String transactionReturnSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> accountCommands = connection.sync();
+    RedisModulesCommands<String,String> transactionReturnCommands = connection.sync();
     try {
-      accountCommands.indexInfo(accountSearchIndexName);
+      transactionReturnCommands.indexInfo(transactionReturnSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder()//
-            .prefix(accountSearchIndexName + ':').build();
+            .prefix(transactionReturnSearchIndexName + ':').build();
 
-        Field customerId = Field.text("customerId").build();
-        Field accountType = Field.text("accountType").build();
-        Field accountOriginSystem = Field.text("accountOriginSystem").build();
-        Field accountStatus = Field.text("accountStatus").build();
-        Field cardNum = Field.text("cardNum").build();
-        Field openDate = Field.numeric("openDate").sortable(true).build();
-        Field lastUpdated = Field.numeric("lastUpdated").sortable(true).build();
-         accountCommands.create(
-          accountSearchIndexName, //
+        Field reasonCode = Field.text("reasonCode").build();
+        Field reasonDescription = Field.text("reasonDescription").build();
+         transactionReturnCommands.create(
+          transactionReturnSearchIndexName, //
           options, //
-                customerId, accountType, accountOriginSystem, accountStatus, cardNum, openDate, lastUpdated
+                 reasonCode, reasonDescription
         );
-        log.info(">>>> Created " + accountSearchIndexName + " Search Index...");
+        log.info(">>>> Created " + transactionReturnSearchIndexName + " Search Index...");
       }
     }
   }

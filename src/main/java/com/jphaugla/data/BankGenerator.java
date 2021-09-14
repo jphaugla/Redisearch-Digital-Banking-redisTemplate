@@ -132,8 +132,8 @@ public class BankGenerator {
 			account.setAccountType(accountTypes.get(i));
 			account.setAccountStatus("Open");
             account.setLastUpdatedBy("Java Test");
-            account.setLastUpdated(currentDate);
-            account.setCreatedDate(currentDate);
+            account.setLastUpdated(currentDate.getTime());
+            account.setCreatedDatetime(currentDate.getTime());
             account.setCreatedBy("Java Test");
 
 
@@ -181,14 +181,14 @@ public class BankGenerator {
         String transactionStat = transactionStatus[randomLocation];
         transaction.setStatus(transactionStat);
         if(transactionStat == "POSTED") {
-        	transaction.setPostingDate(aNewDate);
-        	transaction.setSettlementDate(date_minus_one);
-        	transaction.setInitialDate(date_minus_two);
+        	transaction.setPostingDate(aNewDate.getTime());
+        	transaction.setSettlementDate(date_minus_one.getTime());
+        	transaction.setInitialDate(date_minus_two.getTime());
 		} else if (transactionStat == "SETTLED") {
-			transaction.setSettlementDate(aNewDate);
-			transaction.setInitialDate(date_minus_one);
+			transaction.setSettlementDate(aNewDate.getTime());
+			transaction.setInitialDate(date_minus_one.getTime());
 		} else {
-			transaction.setInitialDate(aNewDate);
+			transaction.setInitialDate(aNewDate.getTime());
 		}
 		transaction.setLocation(location);
 		if(randomLocation<5) {
