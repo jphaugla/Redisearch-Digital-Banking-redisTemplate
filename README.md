@@ -1,5 +1,4 @@
 # Redisearch-Digital-Banking-redistemplate
-*This is a WORK-IN-PROGRESS*
 
 Provides a quick-start example of using Redis with springBoot with Banking structures.  Digital Banking uses an API microservices approach to enable high speed requests for account, customer and transaction information.  As seen below, this data is useful for a variety of business purposes in the bank.
 <a href="" rel="Digital Banking"><img src="images/DigitalBanking.png" alt="" /></a>
@@ -92,8 +91,6 @@ mvn package
 ```bash
 java -jar target/redis-0.0.1-SNAPSHOT.jar
 ```
-*NOTE*  The only part below that is working is saveCustomer.sh, putCustomer.sh, and deleteCustomer.sh
-
 3.  Test the application from a separate terminal window.  This script uses an API call to generate sample banking customers, accounts and transactions.  It uses Spring ASYNC techniques to generate higher load.  A flag chooses between running the transactions pipelined in Redis or in normal non-pipelined method.
 ```bash
 ./scripts/generateData.sh
