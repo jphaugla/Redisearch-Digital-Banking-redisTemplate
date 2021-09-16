@@ -28,6 +28,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -50,8 +51,10 @@ public class RedisConfig {
     @Bean(name = "redisConnectionFactory")
     @Primary
     public LettuceConnectionFactory redisConnectionFactory() {
-        LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
-                .commandTimeout(redisCommandTimeout).poolConfig(new GenericObjectPoolConfig()).build();
+        // LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+         //       .commandTimeout(redisCommandTimeout).poolConfig(new GenericObjectPoolConfig()).build();
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .commandTimeout(redisCommandTimeout).build();
         RedisStandaloneConfiguration redisServerConf = new RedisStandaloneConfiguration();
         redisServerConf.setHostName(env.getProperty("spring.redis.host"));
         redisServerConf.setPort(Integer.parseInt(env.getProperty("spring.redis.port")));
@@ -67,6 +70,7 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new GenericToStringSerializer<Long>(Long.class));
+        // redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
@@ -75,10 +79,11 @@ public class RedisConfig {
     public RedisTemplate<Object, Object> redisTemplateR1(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
-        //    redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        //  redisTemplate.setKeySerializer(new StringRedisSerializer());
-        //   redisTemplate.setHashValueSerializer(new GenericToStringSerializer<Long>(Long.class));
-        //  redisTemplate.afterPropertiesSet();
+        // redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        // redisTemplate.setKeySerializer(new StringRedisSerializer());
+        //  redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
+        //  redisTemplate.setHashValueSerializer(new GenericToStringSerializer<Long>(Long.class));
+        redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
 

@@ -4,16 +4,19 @@ import com.jphaugla.domain.Merchant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.jphaugla.domain.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -32,6 +35,9 @@ public class MerchantRepository{
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object>  redisTemplateR1;
 
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	public MerchantRepository() {
 
 		logger.info("MerchantRepository constructor");
@@ -49,9 +55,15 @@ public class MerchantRepository{
 	public Merchant get(String merchantId) {
 		logger.info("in MerchantRepository.get with merchant id=" + merchantId);
 		String fullKey = "Merchant:" + merchantId;
-		Map<Object, Object> merchantHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> merchantHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Merchant merchant = mapper.convertValue(merchantHash, Merchant.class);
 		return (merchant);
+	}
+	public String createAll(List<Merchant> merchantList) {
+		for (Merchant merchant : merchantList) {
+			create(merchant);
+		}
+		return "Success\n";
 	}
 
 

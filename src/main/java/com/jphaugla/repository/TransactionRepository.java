@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -33,6 +34,9 @@ public class TransactionRepository{
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object>  redisTemplateR1;
 
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	public TransactionRepository() {
 
 		logger.info("TransactionRepository constructor");
@@ -47,7 +51,7 @@ public class TransactionRepository{
 		Map<Object, Object> transactionHash = mapper.convertValue(transaction, Map.class);
 		redisTemplateW1.opsForHash().putAll("Transaction:" + transaction.getTranId(), transactionHash);
 		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);
-		logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
+		// logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
 		return "Success\n";
 	}
 
@@ -61,7 +65,7 @@ public class TransactionRepository{
 	public Transaction get(String transactionId) {
 		logger.info("in TransactionRepository.get with transaction id=" + transactionId);
 		String fullKey = "Transaction:" + transactionId;
-		Map<Object, Object> transactionHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> transactionHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Transaction transaction = mapper.convertValue(transactionHash, Transaction.class);
 		return (transaction);
 	}

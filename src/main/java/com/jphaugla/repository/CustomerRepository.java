@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -31,6 +32,9 @@ public class CustomerRepository{
 	@Autowired
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object>  redisTemplateR1;
+
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 	public CustomerRepository() {
 
@@ -54,10 +58,9 @@ public class CustomerRepository{
 	public Customer get(String customerId) {
 		logger.info("in CustomerRepository.get with customer id=" + customerId);
 		String fullKey = "Customer:" + customerId;
-		Map<Object, Object> customerHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> customerHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Customer customer = mapper.convertValue(customerHash, Customer.class);
 		return (customer);
 	}
-
 
 }

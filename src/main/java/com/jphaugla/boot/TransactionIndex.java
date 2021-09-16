@@ -43,7 +43,7 @@ public class TransactionIndex implements CommandLineRunner {
 
         Field accountNo = Field.text("accountNo").build();
         Field amountType = Field.text("amountType").build();
-        Field merchantAccount = Field.text("merchant").build();
+        Field merchant = Field.text("merchant").build();
         Field status = Field.text("status").sortable(true).build();
         Field description = Field.text("description").build();
         Field referenceKeyType = Field.text("referenceKeyType").build();
@@ -54,12 +54,12 @@ public class TransactionIndex implements CommandLineRunner {
         Field initialDate = Field.numeric("initialDate").sortable(true).build();
         Field settlementDate = Field.numeric("settlementDate").sortable(true).build();
         Field postingDate = Field.numeric("postingDate").sortable(true).build();
-        Field transactionTags = Field.tag("transactionTag").separator(":").sortable(true).build();
+        Field transactionTags = Field.tag("transactionTags").separator(":").sortable(true).build();
 
          transactionCommands.create(
           transactionSearchIndexName, //
           options, //
-                 accountNo, amountType, merchantAccount, status, description, referenceKeyType, tranCd, location, transactionReturn, referenceValue, initialDate, settlementDate, postingDate,transactionTags
+                 accountNo, amountType, merchant, status, description, referenceKeyType, tranCd, location, transactionReturn, referenceValue, initialDate, settlementDate, postingDate,transactionTags
         );
 
         log.info(">>>> Created " + transactionSearchIndexName + " Search Index...");

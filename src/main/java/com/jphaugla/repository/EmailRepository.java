@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -32,6 +33,9 @@ public class EmailRepository{
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object>  redisTemplateR1;
 
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	public EmailRepository() {
 
 		logger.info("EmailRepository constructor");
@@ -49,7 +53,7 @@ public class EmailRepository{
 	public Email get(String emailId) {
 		logger.info("in EmailRepository.get with email id=" + emailId);
 		String fullKey = "Email:" + emailId;
-		Map<Object, Object> emailHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> emailHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Email email = mapper.convertValue(emailHash, Email.class);
 		return (email);
 	}

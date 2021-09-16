@@ -31,7 +31,7 @@ public class BankingController {
 		return "Done";
 	}
 
-	/*
+
 	//  account
 	@RequestMapping("/save_account")
 	public String saveAccount() throws ParseException {
@@ -67,7 +67,7 @@ public class BankingController {
 
 		return "Done";
 	}
-		@GetMapping("/customerByPhone")
+	@GetMapping("/customerByPhone")
 
 	public Customer getCustomerByPhone(@RequestParam String phoneString) {
 		logger.debug("In get customerByPhone with phone as " + phoneString);
@@ -120,15 +120,14 @@ public class BankingController {
 
 	public AggregateResults<String>  transactionStatusReport () {
 		AggregateResults<String> keycounts = new AggregateResults<>();
-		keycounts = bankService.transactionStatusReport();
-		return keycounts;
+		return bankService.transactionStatusReport();
+
 	}
 	@GetMapping("/returned_transactions")
 
-	public List<String> getReturnedTransaction () {
-		List<String> returnsCount = new ArrayList<>();
-		returnsCount = bankService.getTransactionReturns();
-		return returnsCount;
+	public SearchResults<String,String> getReturnedTransaction () {
+		logger.info("in bankcontroller getReturnedTransaction");
+		return bankService.getTransactionReturns();
 	}
 
 	@GetMapping("/statusChangeTransactions")
@@ -194,12 +193,13 @@ public class BankingController {
 		logger.debug("In getTaggedTransactions accountNo=" + accountNo + " tag=" + tag );
 		return bankService.getTaggedTransactions(accountNo, tag);
 	}
+
 	@GetMapping("/getTransaction")
 	public Transaction getTransaction(@RequestParam String transactionID) {
 		Transaction transaction = bankService.getTransaction(transactionID);
 		return transaction;
 	}
-	 */
+
 
 	@GetMapping("/customer")
 

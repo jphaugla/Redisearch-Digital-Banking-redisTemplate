@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory;
 
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
 
@@ -32,6 +34,9 @@ public class PhoneRepository{
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object>  redisTemplateR1;
 
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	public PhoneRepository() {
 
 		logger.info("PhoneRepository constructor");
@@ -46,12 +51,14 @@ public class PhoneRepository{
 		return "Success\n";
 	}
 
-	public Phone get(String phoneId) {
+	public Optional<Phone> get(String phoneId) {
 		logger.info("in Phone Repository.get with phone id=" + phoneId);
 		String fullKey = "Phone:" + phoneId;
-		Map<Object, Object> phoneHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> phoneHash = stringRedisTemplate.opsForHash().entries(fullKey);
+		logger.info("Full key is " + fullKey + " phoneHash is " + phoneHash);
 		Phone phone = mapper.convertValue(phoneHash, Phone.class);
-		return (phone);
+		logger.info("return phone " + phone.getPhoneNumber() + ":" + phone.getPhoneLabel() + ":" + phone.getCustomerId());
+		return Optional.ofNullable((phone));
 	}
 
 

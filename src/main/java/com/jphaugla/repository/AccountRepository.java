@@ -14,6 +14,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -31,6 +32,9 @@ public class AccountRepository {
 	@Autowired
 	@Qualifier("redisTemplateR1")
 	private RedisTemplate<Object, Object> redisTemplateR1;
+
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 	public AccountRepository() {
 
@@ -55,7 +59,7 @@ public class AccountRepository {
 	public Account get(String accountId) {
 		logger.info("in AccountRepository.get with Account id=" + accountId);
 		String fullKey = "Account:" + accountId;
-		Map<Object, Object> AccountHash = redisTemplateR1.opsForHash().entries(fullKey);
+		Map<Object, Object> AccountHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Account account = mapper.convertValue(AccountHash, Account.class);
 		return (account);
 	}
