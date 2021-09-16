@@ -115,6 +115,12 @@ public class BankService {
 	public void postCustomer(Customer customer) {
 		logger.info("in postCustomer with Customer =" + customer);
 		customerRepository.create(customer);
+		Email home_email = new Email(customer.getCustomerId() + "@gmail.com", "home", customer.getCustomerId());
+		Email work_email = new Email(customer.getCustomerId() + "@redislabs.com", "work", customer.getCustomerId());
+		Phone cell_phone = new Phone("612-408-4394", "cell", customer.getCustomerId());
+		emailRepository.create(home_email);
+		emailRepository.create(work_email);
+		phoneRepository.create(cell_phone);
 	}
 
 	public int deleteCustomer(String customerString) {
@@ -216,6 +222,13 @@ public class BankService {
 		}
 		return returnCust;
 	}
+
+	public int deleteCustomerEmail(String customerID) {
+		logger.info("in bankservice.deleteCustomerEmail with CustomerID " + customerID);
+		int deleteCount = emailRepository.deleteCustomerEmails(customerID);
+		return deleteCount;
+	}
+
 	//
 	// Utility methods
 	//
@@ -615,6 +628,8 @@ public class BankService {
 
 		return merchantResults;
 	};
+
+
 
 
 }

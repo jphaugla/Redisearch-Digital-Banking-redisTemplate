@@ -213,6 +213,12 @@ public class BankingController {
 		return bankService.deleteCustomer(customerString);
 	}
 
+	@GetMapping("/deleteCustomerEmail")
+
+	public int deleteCustomerEmail(@RequestParam String customerId) {
+		return bankService.deleteCustomerEmail(customerId);
+	}
+
 	@PostMapping(value = "/postCustomer", consumes = "application/json", produces = "application/json")
 	public String postCustomer(@RequestBody Customer customer ) throws ParseException {
 		bankService.postCustomer(customer);

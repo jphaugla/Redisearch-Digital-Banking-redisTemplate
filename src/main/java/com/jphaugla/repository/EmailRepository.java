@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,6 +42,8 @@ public class EmailRepository{
 
 		Map<Object, Object> emailHash = mapper.convertValue(email, Map.class);
 		redisTemplateW1.opsForHash().putAll("Email:" + email.getEmailAddress(), emailHash);
+		// for demo purposed add a member to the set for the Customer
+		stringRedisTemplate.opsForSet().add("CustEmail:" + email.getCustomerId(), email.getEmailAddress());
 		// redisTemplate.opsForHash().putAll("Email:" + email.getEmailId(), emailHash);
 		logger.info(String.format("Email with ID %s saved", email.getEmailAddress()));
 		return "Success\n";
@@ -52,6 +55,27 @@ public class EmailRepository{
 		Map<Object, Object> emailHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Email email = mapper.convertValue(emailHash, Email.class);
 		return (email);
+	}
+    //  this is sample code demonstrating removing all the emails for a customer without using redisearch
+	public void delete(String emailId) {
+		logger.info("in emailrepository.delete with emailId " + emailId);
+		String fullKey = "Email:" + emailId;
+		stringRedisTemplate.delete(fullKey);
+	}
+
+	public int deleteCustomerEmails (String customerId) {
+		logger.info("in EmailRepository.deleteCustomerEmails with custid " + customerId);
+		String custEmailKey = "CustEmail:"+ customerId;
+		String fullEmailKey;
+		Set<String> emailsToDelete = stringRedisTemplate.opsForSet().members(custEmailKey);
+		int emailCount = emailsToDelete.size();
+		for (String emailKey : emailsToDelete) {
+			fullEmailKey = "Email:" + emailKey;
+			logger.info("emailKey to delete is " + fullEmailKey);
+			stringRedisTemplate.delete(fullEmailKey);
+		}
+		stringRedisTemplate.delete(custEmailKey);
+		return emailCount;
 	}
 
 
