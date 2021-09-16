@@ -31,10 +31,6 @@ public class PhoneRepository{
 	private RedisTemplate<Object, Object> redisTemplateW1;
 
 	@Autowired
-	@Qualifier("redisTemplateR1")
-	private RedisTemplate<Object, Object>  redisTemplateR1;
-
-	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
 
 	public PhoneRepository() {
