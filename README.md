@@ -38,7 +38,7 @@ In this tutorial, a java spring boot application is run through a jar file to su
 
 This github java code uses the mesclun library for redis modules.  The mesclun library supports RediSearch, RedisGears, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
 All of the Spring Java indexes have been removed in this version.  All the crud repository will also be removed in this when it is complete.
-
+Can also use TLS with Spring Boot java lettuce.  Steps are near bottom.
 ### The spring java code
 This is basic spring links
 * [Spring Redis](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis.repositories.indexes) 
@@ -125,3 +125,58 @@ Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this t
   * startAppservers.sh - start multiple app server instances for load testing
   * testPipeline.sh - test pipelining
   * updateTransactionStatus.sh - generate new transactions to move all transactions from one transaction Status up to the next transaction status. Parameter is target status.  Can choose SETTLED or POSTED.  Will move 100,000 transactions per call
+
+## TLS with spring boot java lettuce
+
+Must set up the server side and verify server side Redis enterprise keys are working.  This guide
+Really just a few steps to make this work and is not in the source code
+[This blog helps with TLS configuration with Redis Enterprise](https://tgrall.github.io/blog/2020/01/02/how-to-use-ssl-slash-tls-with-redis-enterprise/)
+Additional note, instead of using stunnel for testing redis-cli, see command after environment is established
+
+
+* change environment variable to use redisson yaml file with SSL and have extra "s" on redis URI
+```bash
+export KEYSTORE_PASSWORD=sillyPassword
+export TRUSTSTORE_PASSWORD=sillyPassword
+export REDIS_CONNECTION="rediss://localhost:6379"
+export REDISSON_YAML_PATH=src/main/resources/redisson-ssl.yaml
+```
+* generate required keys
+    *  copy in proxy certificate into same ssl folder and name it proxy_cert.pem
+```bash
+cd src/main/resources/ssl
+./generatepems.sh
+# must type in passwords matching the environment variables when prompted below
+./generatekeystore.sh
+./generatetrust.sh
+./importkey.sh
+```
+```bash
+redis-cli -u $REDIS_CONNECTION --tls --cacert src/main/resources/ssl/proxy_cert.pem --cert src/main/resources/ssl/client_cert_app_001.pem --key  src/main/resources/ssl/client_key_app_001.pem -a $REDIS_PASSWORD
+```
+
+* Turn SSL on for the application.  (Two different ways)  in both ways, must set spring.redis.ssl to true
+  * Can change src/main/resources/application.properties to add the key and trust store parameters
+```bash
+spring.redis.ssl=true
+server.ssl.key-store=./src/main/resources/ssl/client-keystore.p12
+server.ssl.key-store-password=${KEYSTORE_PASSWORD}
+server.ssl.trust-store=./src/main/resources/ssl/client-truststore.p12
+server.ssl.trust-store-password=${TRUSTSTORE_PASSWORD}
+```
+or can change the runtime (sample script included)
+```bash
+
+```
+* package and run application
+```bash
+mvn clean package
+java -jar  target/redis-0.0.1-SNAPSHOT.jar
+```
+
+WARNING:  This causes  TLS to be turned on for the application which causes the following chages:
+* port changes from 8080 to 8443
+* must disable the failure on non-certified key in each of the scripts. This format works:
+```bash
+*curl --insecure -I 
+```
