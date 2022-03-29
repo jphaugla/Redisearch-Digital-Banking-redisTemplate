@@ -24,6 +24,9 @@ In this tutorial, a java spring boot application is run through a jar file to su
 
 ## Links that help!
 
+ * [Redis Stack](https://redis.com/blog/introducing-redis-stack/)
+ * [Redis Search](https://redis.io/docs/stack/search/)
+ * [Redis Insight](https://redis.io/docs/stack/insight/)
  * [spring data for redis github](https://github.com/spring-projects/spring-data-examples/tree/master/redis/repositories)
  * [spring data for redis sample code](https://www.oodlestechnologies.com/blogs/Using-Redis-with-CrudRepository-in-Spring-Boot/)
  * [lettuce tips redis spring boot](https://www.bytepitch.com/blog/redis-integration-spring-boot/)
@@ -62,7 +65,7 @@ The java code demonstrates common API actions with the data layer in REDIS.  The
 git clone https://github.com/jphaugla/Redisearch-Digital-Banking.git
 ```
 3. Refer to the notes for redis Docker images used but don't get too bogged down as docker compose handles everything except for a few admin steps on tomcat.
- * [https://hub.docker.com/r/bitnami/redis/](https://hub.docker.com/r/bitnami/redis/)  
+ * [Redis stack docker instructions](https://redis.io/docs/stack/get-started/install/docker/)
 4. Open terminal and change to the github home where you will see the docker-compose.yml file, then: 
 ```bash
 docker-compose up -d
@@ -134,13 +137,12 @@ Really just a few steps to make this work and is not in the source code
 Additional note, instead of using stunnel for testing redis-cli, see command after environment is established
 
 
-* change environment variable to use redisson yaml file with SSL and have extra "s" on redis URI
+* Change environment variables for subsequent scripts
 ```bash
 export KEYSTORE_PASSWORD=sillyPassword
 export TRUSTSTORE_PASSWORD=sillyPassword
-export REDIS_CONNECTION="rediss://localhost:6379"
-export REDISSON_YAML_PATH=src/main/resources/redisson-ssl.yaml
 ```
+
 * generate required keys
     *  copy in proxy certificate into same ssl folder and name it proxy_cert.pem
 ```bash

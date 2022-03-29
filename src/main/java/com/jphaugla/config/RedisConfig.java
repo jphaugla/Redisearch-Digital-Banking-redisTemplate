@@ -58,7 +58,9 @@ public class RedisConfig {
         RedisStandaloneConfiguration redisServerConf = new RedisStandaloneConfiguration();
         redisServerConf.setHostName(env.getProperty("spring.redis.host"));
         redisServerConf.setPort(Integer.parseInt(env.getProperty("spring.redis.port")));
-        redisServerConf.setPassword(RedisPassword.of(env.getProperty("spring.redis.password")));
+        if(env.getProperty("spring.redis.password") != null && !env.getProperty("spring.redis.password").isEmpty()) {
+            redisServerConf.setPassword(RedisPassword.of(env.getProperty("spring.redis.password")));
+        }
         return new LettuceConnectionFactory(redisServerConf, clientConfig);
     }
 
