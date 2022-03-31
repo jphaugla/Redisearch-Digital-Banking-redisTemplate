@@ -45,7 +45,7 @@ public class EmailRepository{
 		// for demo purposed add a member to the set for the Customer
 		stringRedisTemplate.opsForSet().add("CustEmail:" + email.getCustomerId(), email.getEmailAddress());
 		// redisTemplate.opsForHash().putAll("Email:" + email.getEmailId(), emailHash);
-		logger.info(String.format("Email with ID %s saved", email.getEmailAddress()));
+		// logger.info(String.format("Email with ID %s saved", email.getEmailAddress()));
 		return "Success\n";
 	}
 

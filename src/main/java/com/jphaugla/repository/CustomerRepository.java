@@ -47,12 +47,12 @@ public class CustomerRepository{
 		Map<Object, Object> customerHash = mapper.convertValue(customer, Map.class);
 		redisTemplateW1.opsForHash().putAll("Customer:" + customer.getCustomerId(), customerHash);
 		// redisTemplate.opsForHash().putAll("Customer:" + customer.getCustomerId(), customerHash);
-		logger.info(String.format("Customer with ID %s saved", customer.getCustomerId()));
+		// logger.info(String.format("Customer with ID %s saved", customer.getCustomerId()));
 		return "Success\n";
 	}
 
 	public Customer get(String customerId) {
-		logger.info("in CustomerRepository.get with customer id=" + customerId);
+		// logger.info("in CustomerRepository.get with customer id=" + customerId);
 		String fullKey = "Customer:" + customerId;
 		Map<Object, Object> customerHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Customer customer = mapper.convertValue(customerHash, Customer.class);

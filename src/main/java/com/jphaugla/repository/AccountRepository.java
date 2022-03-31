@@ -48,7 +48,7 @@ public class AccountRepository {
 		Map<Object, Object> AccountHash = mapper.convertValue(account, Map.class);
 		redisTemplateW1.opsForHash().putAll("Account:" + account.getAccountNo(), AccountHash);
 		// redisTemplate.opsForHash().putAll("Account:" + Account.getAccountId(), AccountHash);
-		logger.info(String.format("Account with ID %s saved", account.getAccountNo()));
+		// logger.info(String.format("Account with ID %s saved", account.getAccountNo()));
 		return "Success\n";
 	}
 

@@ -44,7 +44,7 @@ public class MerchantRepository{
 		Map<Object, Object> merchantHash = mapper.convertValue(merchant, Map.class);
 		redisTemplateW1.opsForHash().putAll("Merchant:" + merchant.getName(), merchantHash);
 		// redisTemplate.opsForHash().putAll("Merchant:" + merchant.getMerchantId(), merchantHash);
-		logger.info(String.format("Merchant with ID %s saved", merchant.getName()));
+		// logger.info(String.format("Merchant with ID %s saved", merchant.getName()));
 		return "Success\n";
 	}
 

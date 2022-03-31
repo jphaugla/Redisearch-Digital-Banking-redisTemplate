@@ -43,7 +43,7 @@ public class PhoneRepository{
 		Map<Object, Object> phoneHash = mapper.convertValue(phone, Map.class);
 		redisTemplateW1.opsForHash().putAll("Phone:" + phone.getPhoneNumber(), phoneHash);
 		// redisTemplate.opsForHash().putAll("Phone:" + phone.getPhoneId(), phoneHash);
-		logger.info(String.format("Phone with ID %s saved", phone.getPhoneNumber()));
+		// logger.info(String.format("Phone with ID %s saved", phone.getPhoneNumber()));
 		return "Success\n";
 	}
 
