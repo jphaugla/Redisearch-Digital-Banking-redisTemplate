@@ -413,7 +413,7 @@ public class BankService {
 	}
 
 	public  String generateData(Integer noOfCustomers, Integer noOfTransactions, Integer noOfDays,
-								String key_suffix, Boolean pipelined)
+								String key_suffix)
 			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException, RedisCommandExecutionException {
 
 		List<Account> accounts = createCustomerAccount(noOfCustomers, key_suffix);
@@ -423,7 +423,7 @@ public class BankService {
 		int totalTransactions = noOfTransactions * noOfDays;
 
 		logger.info("Writing " + totalTransactions + " transactions for " + noOfCustomers
-				+ " customers. suffix is " + key_suffix + " Pipelined is " + pipelined);
+				+ " customers. suffix is " + key_suffix );
 		int account_size = accounts.size();
 		int transactionsPerAccount = noOfDays*noOfTransactions/account_size;
 		logger.info("number of accounts generated is " + account_size + " transactionsPerAccount "
@@ -433,29 +433,14 @@ public class BankService {
 		merchantRepository.createAll(merchants);
 		transactionReturnRepository.createAll(transactionReturns);
 		CompletableFuture<Integer> transaction_cntr = null;
-		if(pipelined) {
-			logger.info("doing this pipelined");
-			int transactionIndex = 0;
-			List<Transaction> transactionList = new ArrayList<>();
-			for(Account account:accounts) {
-				for(int i=0; i<transactionsPerAccount; i++) {
-					transactionIndex++;
-					Transaction randomTransaction = BankGenerator.createRandomTransaction(noOfDays, transactionIndex, account, key_suffix,
+		int transactionIndex = 0;
+		List<Transaction> transactionList = new ArrayList<>();
+		for(Account account:accounts) {
+			logger.info("writing account " + account.getAccountNo());
+			for(int i=0; i<transactionsPerAccount; i++) {
+				transactionIndex++;
+				Transaction randomTransaction = BankGenerator.createRandomTransaction(noOfDays, transactionIndex, account, key_suffix,
 							merchants, transactionReturns);
-					transactionList.add(randomTransaction);
-				}
-				transaction_cntr = writeAccountTransactions(transactionList);
-				transactionList.clear();
-			}
-
-		} else {
-			//
-			for (int i = 0; i < totalTransactions; i++) {
-				//  from the account list, grabbing a random account
-				//   with this random cannot do pipelining on account since not in account order
-				Account account = accounts.get(new Double(Math.random() * account_size).intValue());
-				Transaction randomTransaction = BankGenerator.createRandomTransaction(noOfDays, i, account, key_suffix,
-						merchants, transactionReturns);
 				transaction_cntr = writeTransactionFuture(randomTransaction);
 			}
 		}
@@ -488,12 +473,7 @@ public class BankService {
 
 		return accountResults;
 	};
-	public CompletableFuture<Integer>  writeAccountTransactions (List<Transaction> transactionList) throws IllegalAccessException, ExecutionException, InterruptedException {
 
-		CompletableFuture<Integer> returnVal = null;
-		returnVal = asyncService.writeAccountTransactions(transactionList);
-		return returnVal;
-	}
 	public SearchResults<String, String> getCreditCardTransactions(String creditCard, Date startDate, Date endDate)
 			throws ParseException, RedisCommandExecutionException {
 		logger.info("credit card is " + creditCard + " start is " + startDate + " end is " + endDate);

@@ -49,11 +49,10 @@ public class BankingController {
 	@GetMapping("/generateData")
 	@ResponseBody
 	public String generateData (@RequestParam Integer noOfCustomers, @RequestParam Integer noOfTransactions,
-								@RequestParam Integer noOfDays, @RequestParam String key_suffix,
-								@RequestParam Boolean pipelined)
+								@RequestParam Integer noOfDays, @RequestParam String key_suffix)
 			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException {
 
-		bankService.generateData(noOfCustomers, noOfTransactions, noOfDays, key_suffix, pipelined);
+		bankService.generateData(noOfCustomers, noOfTransactions, noOfDays, key_suffix);
 
 		return "Done";
 	}

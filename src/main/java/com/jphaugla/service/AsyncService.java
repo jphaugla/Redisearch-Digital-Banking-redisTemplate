@@ -2,11 +2,15 @@ package com.jphaugla.service;
 
 import com.jphaugla.domain.*;
 import com.jphaugla.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 
 import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.data.redis.hash.ObjectHashMapper;
@@ -34,7 +38,10 @@ public class AsyncService {
     @Autowired
     private EmailRepository emailRepository;
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    @Qualifier("redisTemplateW1")
+    private RedisTemplate<Object, Object> redisTemplateW1;
+
+    private static final Logger logger = LoggerFactory.getLogger(BankService.class);
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeAllTransaction(List<Transaction> transactions) {
@@ -79,66 +86,7 @@ public class AsyncService {
         return CompletableFuture.completedFuture(0);
     }
 
-    public void writeTransactionList(List<Transaction> transactionList) {
-
-        HashMapper<Object, byte[], byte[]> mapper = new ObjectHashMapper();
-        this.redisTemplate.executePipelined(new RedisCallback<Object>() {
-            @Override
-            public Object doInRedis(RedisConnection connection)
-                    throws DataAccessException {
-                connection.openPipeline();
-                for (Transaction tx : transactionList) {
-                    String hashName = "Transaction:" + tx.getTranId();
-                    Map<byte[], byte[]> mappedHash = mapper.toHash(tx);
-                    connection.hMSet(hashName.getBytes(), mappedHash);
-                }
-                connection.closePipeline();
-                return null;
-            }
-        });
-    }
 
 
-    public void writePostedDateIndex(List<Transaction> transactionList) {
-
-        HashMapper<Object, byte[], byte[]> mapper = new ObjectHashMapper();
-        this.redisTemplate.executePipelined(new RedisCallback<Object>() {
-            @Override
-            public Object doInRedis(RedisConnection connection)
-                    throws DataAccessException {
-                connection.openPipeline();
-
-                for (Transaction tx : transactionList) {
-                    if(tx.getPostingDate() != null) {
-                        String keyname="Trans:PostDate:" + tx.getAccountNo();
-                        connection.zAdd(keyname.getBytes(),  tx.getPostingDate(),
-                                tx.getTranId().getBytes());
-                    }
-                }
-                connection.closePipeline();
-                return null;
-            }
-        });
-
-    }
-
-
-    @Async("threadPoolTaskExecutor")
-    public CompletableFuture<Integer>  writeAccountTransactions (List<Transaction> transactionList) throws IllegalAccessException, ExecutionException, InterruptedException {
-
-        //   writes a sorted set to be used as the posted date index
-        // logger.info("entering writeAccountTransactions with list size of " + transactionList.size());
-        writeTransactionList(transactionList);
-        // writePostedDateIndex(transactionList);
-        //   write using redisTemplate
-        for (Transaction transaction:transactionList) {
-            String hashName = "Transaction:" + transaction.getTranId();
-            String idxSetName = hashName + ":idx";
-            String merchantIndexName = "Transaction:merchant:" + transaction.getMerchant();
-            String accountIndexName = "Transaction:account:" + transaction.getAccountNo();
-            String statusIndexName = "Transaction:status:" + transaction.getStatus();
-        }
-        return CompletableFuture.completedFuture(0);
-    }
 
 }
