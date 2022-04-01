@@ -539,7 +539,7 @@ public class BankService {
 		int totalPhone = 0;
 		logger.info("before the big for loop");
 		for (int i=0; i < noOfCustomers; i++){
-			logger.info("int noOfCustomer for loop i=" + i);
+			// logger.info("int noOfCustomer for loop i=" + i);
 			Customer customer = BankGenerator.createRandomCustomer(key_suffix);
 			List<Email> emailList = BankGenerator.createEmail(customer.getCustomerId());
 			List<Phone> phoneList = BankGenerator.createPhone(customer.getCustomerId());
@@ -561,7 +561,7 @@ public class BankService {
 				allAccounts.addAll(accounts);
 			}
 		}
-		logger.info("before the gets");
+		// logger.info("before the gets");
 		account_cntr.get();
 		customer_cntr.get();
 		email_cntr.get();
