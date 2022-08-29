@@ -34,12 +34,12 @@ In this tutorial, a java spring boot application is run through a jar file to su
  * [spring data reference test code](https://github.com/spring-projects/spring-data-examples/blob/master/redis/repositories/src/test/java/example/springdata/redis/repositories/PersonRepositoryTests.java)
  * [spring async tips](https://dzone.com/articles/effective-advice-on-spring-async-part-1)
  * [brewdis sample application](https://github.com/redis-developer/brewdis)
- * [redis-developer lettucemod mesclun](https://github.com/redis-developer/lettucemod)
+ * [redis-developer lettucemod](https://github.com/redis-developer/lettucemod)
 
 
 ## Technical Overview
 
-This github java code uses the mesclun library for redis modules.  The mesclun library supports RediSearch, RedisGears, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
+This github java code uses the lettucemod library for redis modules.  The lettucemod library supports RediSearch, RedisJSON, RedisGears, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
 All of the Spring Java indexes have been removed in this version.  All the crud repository will also be removed in this when it is complete.
 Can also use TLS with Spring Boot java lettuce.  Steps are near bottom.
 ### The spring java code
