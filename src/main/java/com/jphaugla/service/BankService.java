@@ -13,12 +13,12 @@ import com.jphaugla.data.BankGenerator;
 import com.jphaugla.domain.*;
 import com.jphaugla.repository.*;
 
-import com.redislabs.mesclun.search.*;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.aggregate.GroupBy;
-import com.redislabs.mesclun.search.aggregate.reducers.Count;
-
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
+import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.timeseries.MRangeOptions;
 import io.lettuce.core.RedisCommandExecutionException;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +129,7 @@ public class BankService {
 		String queryString = "@customerId:" + customerString;
 		logger.info("query string is " + queryString);
 		int returnValue = 0;
-		SearchResults<String, String> results = commands.search(customerSearchIndexName, queryString);
+		SearchResults<String, String> results = commands.ftSearch(customerSearchIndexName, queryString);
 		returnValue = results.size();
 		for (Document document : results) {
 			String fullKey = (String) document.getId();
@@ -145,14 +145,14 @@ public class BankService {
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "@stateAbbreviation:" + state + " @city:" + city;
 		logger.info("query string is " + queryString);
-		SearchResults<String, String> results = commands.search(customerSearchIndexName, queryString);
+		SearchResults<String, String> results = commands.ftSearch(customerSearchIndexName, queryString);
 		return results;
 	}
 
 	public SearchResults<String,String> getCustomerIdsbyZipcodeLastname(String zipcode, String lastName){
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "@zipcode:" + zipcode + " @lastName:" + lastName;
-		SearchResults<String, String> results = commands.search(customerSearchIndexName, queryString);
+		SearchResults<String, String> results = commands.ftSearch(customerSearchIndexName, queryString);
 		return results;
 	}
 
@@ -274,8 +274,8 @@ public class BankService {
 	private List<String> getTransactionByStatus(String transactionStatus) throws ExecutionException, InterruptedException {
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "@status:" + transactionStatus;
-		SearchOptions searchOptions = SearchOptions.builder().limit(SearchOptions.Limit.offset(0).num(100000)).clearReturnFields().build();
-		SearchResults<String, String> results = commands.search(transactionSearchIndexName, queryString, searchOptions);
+		SearchOptions searchOptions = SearchOptions.builder().limit(SearchOptions.limit(0,10000)).build();
+		SearchResults<String, String> results = commands.ftSearch(transactionSearchIndexName, queryString, searchOptions);
 		// this code snippet get converts results to List of Transaction IDs
 		List<String> transIdList = new ArrayList<String>();
 		for (Document document : results) {
@@ -325,12 +325,15 @@ public class BankService {
 
 		return transaction_cntr;
 	}
-	public AggregateResults<String>  transactionStatusReport() {
+	public AggregateResults<String> transactionStatusReport() {
 		RediSearchCommands<String, String> commands = connection.sync();
-		AggregateResults<String> aggregateResults = commands.aggregate(transactionSearchIndexName, "*",
-				AggregateOptions.builder().load("status").operation(GroupBy.properties("status").reducer(Count.as("COUNT")).build()).build());
+		// AggregateResults<String> aggregateResults = commands.ftAggregate((transactionSearchIndexName, "*",
+		// AggregateOptions.builder().load("status").operation(MRangeOptions.GroupBy.properties("status").reducer(Reducers.Count.as("COUNT")).build()).build());
+		AggregateOptions<String, String> groupByOptions = AggregateOptions.<String, String>operation(Group.by("status").reducer(Reducers.Count.as("COUNT")).build()).build();
+		AggregateResults<String> aggregateResults = commands.ftAggregate(transactionSearchIndexName, "*", groupByOptions);
 		return (aggregateResults);
 	}
+
 	public void saveSampleTransaction() throws ParseException, RedisCommandExecutionException {
 		Date settle_date = new SimpleDateFormat("yyyy.MM.dd").parse("2021.07.28");
 		Date post_date = new SimpleDateFormat("yyyy.MM.dd").parse("2021.07.28");
@@ -385,7 +388,7 @@ public class BankService {
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "@accountNo:" + accountNo + " @transactionTags:{" + tag + "}";
 		logger.info("query is " + queryString);
-		SearchResults<String, String> accountResults = commands.search(transactionSearchIndexName, queryString);
+		SearchResults<String, String> accountResults = commands.ftSearch(transactionSearchIndexName, queryString);
 
 		return accountResults;
 	}
@@ -469,7 +472,7 @@ public class BankService {
 		String tofromQuery = getDateToFromQueryString(startDate, endDate);
 		String queryString = "@accountNo:" + account + tofromQuery;
 		logger.info("query is " + queryString);
-		SearchResults<String, String> accountResults = commands.search(transactionSearchIndexName, queryString);
+		SearchResults<String, String> accountResults = commands.ftSearch(transactionSearchIndexName, queryString);
 
 		return accountResults;
 	};
@@ -480,7 +483,7 @@ public class BankService {
 		RediSearchCommands<String, String> commands = connection.sync();
 		SearchResults<String, String> transactionResults = null;
 		String queryString = "@cardNum:" + creditCard;
-		SearchResults<String, String> accountResults = commands.search(accountSearchIndexName, queryString);
+		SearchResults<String, String> accountResults = commands.ftSearch(accountSearchIndexName, queryString);
 		//  result set has all accounts with a credit card
 		//  build a query to match any of these merchants
 		if(accountResults.getCount() > 0) {
@@ -498,7 +501,7 @@ public class BankService {
 			String tofromQuery = getDateToFromQueryString(startDate, endDate);
 			queryString = accountListQueryString + tofromQuery;
 			logger.info("queryString is " + queryString);
-			transactionResults = commands.search(transactionSearchIndexName, queryString);
+			transactionResults = commands.ftSearch(transactionSearchIndexName, queryString);
 		}
 		return transactionResults;
 	};
@@ -561,7 +564,7 @@ public class BankService {
 		logger.info("in getTransactionReturns ");
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "*";
-		SearchResults<String, String> merchantResults = commands.search(transactionReturnSearchIndexName, queryString);
+		SearchResults<String, String> merchantResults = commands.ftSearch(transactionReturnSearchIndexName, queryString);
 
 		return merchantResults;
 	}
@@ -572,7 +575,7 @@ public class BankService {
 																		Date startDate, Date endDate) throws ParseException, RedisCommandExecutionException {
 		RediSearchCommands<String, String> commands = connection.sync();
 		String queryString = "@categoryCode:" + in_merchantCategory;
-		SearchResults<String, String> merchantResults = commands.search(merchantSearchIndexName, queryString);
+		SearchResults<String, String> merchantResults = commands.ftSearch(merchantSearchIndexName, queryString);
 		SearchResults<String, String> transactionResults = null;
 		//  result set has all merchants with a category code
 		//  build a query to match any of these merchants
@@ -591,7 +594,7 @@ public class BankService {
 			String tofromQuery = getDateToFromQueryString(startDate, endDate);
 			queryString = "@accountNo:" + account + " " + merchantListQueryString + tofromQuery;
 			logger.info("queryString is " + queryString);
-			transactionResults = commands.search(transactionSearchIndexName, queryString);
+			transactionResults = commands.ftSearch(transactionSearchIndexName, queryString);
 		}
 		return transactionResults;
 	}
@@ -604,7 +607,7 @@ public class BankService {
 		String tofromQuery = getDateToFromQueryString(startDate, endDate);
 		String queryString = "@merchant:" + in_merchant + " @accountNo:" + account + tofromQuery;
 		logger.info("query is " + queryString);
-		SearchResults<String, String> merchantResults = commands.search(transactionSearchIndexName, queryString);
+		SearchResults<String, String> merchantResults = commands.ftSearch(transactionSearchIndexName, queryString);
 
 		return merchantResults;
 	};

@@ -1,9 +1,9 @@
 package com.jphaugla.boot;
 
-import com.redislabs.mesclun.RedisModulesCommands;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.CreateOptions;
-import com.redislabs.mesclun.search.Field;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class PhoneIndex implements CommandLineRunner {
   public void run(String... args) throws Exception {
     RedisModulesCommands<String,String> phoneCommands = connection.sync();
     try {
-      phoneCommands.indexInfo(phoneSearchIndexName);
+      phoneCommands.ftInfo(phoneSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
@@ -37,7 +37,7 @@ public class PhoneIndex implements CommandLineRunner {
 
         Field phoneNumber = Field.text("phoneNumber").build();
         Field customerId = Field.text("customerId").build();
-         phoneCommands.create(
+         phoneCommands.ftCreate(
           phoneSearchIndexName, //
           options, //
                 phoneNumber, customerId

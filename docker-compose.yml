@@ -1,17 +1,17 @@
 version: '3'
 services:
 
-  redis:
+  redisstack:
     image: redis/redis-stack:latest
-    container_name: redis
+    container_name: redisstack
     ports:
       - "6379:6379"
     volumes:
       - ./redis_data:/data
 
-  insight:
+  redisinsight:
     image: "redislabs/redisinsight:latest"
-    container_name: insight
+    container_name: redisinsight
     ports:
       - "8001:8001"
     volumes:

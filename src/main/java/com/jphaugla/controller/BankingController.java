@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.jphaugla.domain.*;
 
-import com.redislabs.mesclun.search.AggregateResults;
-import com.redislabs.mesclun.search.SearchResults;
+import com.redis.lettucemod.search.AggregateResults;
+import com.redis.lettucemod.search.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +117,7 @@ public class BankingController {
 
 	@GetMapping ("/transactionStatusReport")
 
-	public AggregateResults<String>  transactionStatusReport () {
+	public AggregateResults<String> transactionStatusReport () {
 		AggregateResults<String> keycounts = new AggregateResults<>();
 		return bankService.transactionStatusReport();
 

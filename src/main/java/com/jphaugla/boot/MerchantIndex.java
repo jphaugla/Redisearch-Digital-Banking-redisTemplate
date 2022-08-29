@@ -1,9 +1,10 @@
 package com.jphaugla.boot;
 
-import com.redislabs.mesclun.search.*;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.RedisModulesCommands;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class MerchantIndex implements CommandLineRunner {
   public void run(String... args) throws Exception {
     RedisModulesCommands<String,String> merchantCommands = connection.sync();
     try {
-      merchantCommands.indexInfo(merchantSearchIndexName);
+      merchantCommands.ftInfo(merchantSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
@@ -41,7 +42,7 @@ public class MerchantIndex implements CommandLineRunner {
         Field categoryDescription = Field.text("categoryDescription").build();
         Field merchantState = Field.text("state").build();
         Field merchantCountry = Field.text("countryCode").build();
-        merchantCommands.create(
+        merchantCommands.ftCreate(
           merchantSearchIndexName, //
           options, //
                 merchantName, categoryCode, categoryDescription, merchantState, merchantCountry

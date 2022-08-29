@@ -1,9 +1,9 @@
 package com.jphaugla.boot;
 
-import com.redislabs.mesclun.RedisModulesCommands;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.CreateOptions;
-import com.redislabs.mesclun.search.Field;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class AccountIndex implements CommandLineRunner {
   public void run(String... args) throws Exception {
     RedisModulesCommands<String,String> accountCommands = connection.sync();
     try {
-      accountCommands.indexInfo(accountSearchIndexName);
+      accountCommands.ftInfo(accountSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
@@ -40,9 +40,9 @@ public class AccountIndex implements CommandLineRunner {
         Field accountOriginSystem = Field.text("accountOriginSystem").build();
         Field accountStatus = Field.text("accountStatus").build();
         Field cardNum = Field.text("cardNum").build();
-        Field openDate = Field.numeric("openDate").sortable(true).build();
-        Field lastUpdated = Field.numeric("lastUpdated").sortable(true).build();
-         accountCommands.create(
+        Field openDate = Field.numeric("openDate").sortable().build();
+        Field lastUpdated = Field.numeric("lastUpdated").sortable().build();
+         accountCommands.ftCreate(
           accountSearchIndexName, //
           options, //
                 customerId, accountType, accountOriginSystem, accountStatus, cardNum, openDate, lastUpdated

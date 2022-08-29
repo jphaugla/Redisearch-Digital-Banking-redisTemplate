@@ -1,9 +1,9 @@
 package com.jphaugla.boot;
 
-import com.redislabs.mesclun.search.*;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.RedisModulesCommands;
-
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class CustomerIndex implements CommandLineRunner {
   public void run(String... args) throws Exception {
     RedisModulesCommands<String,String> customerCommands = connection.sync();
     try {
-      customerCommands.indexInfo(customerSearchIndexName);
+      customerCommands.ftInfo(customerSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {
       if (rcee.getMessage().equals("Unknown Index name")) {
 
@@ -43,7 +43,7 @@ public class CustomerIndex implements CommandLineRunner {
         Field zipcode = Field.text("zipcode").build();
         Field customerId = Field.text( "customerId").build();
 
-        customerCommands.create(
+        customerCommands.ftCreate(
           customerSearchIndexName, //
           options, //
                 customerId, city, firstName, fullName, lastName, stateAbbreviation, zipcode
