@@ -1,7 +1,8 @@
 package com.jphaugla.boot;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -20,13 +21,14 @@ public class CustomerIndex implements CommandLineRunner {
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
+
   @Value("${app.customerSearchIndexName}")
   private String customerSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> customerCommands = connection.sync();
+    RediSearchCommands<String,String> customerCommands = connection.sync();
     try {
       customerCommands.ftInfo(customerSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {

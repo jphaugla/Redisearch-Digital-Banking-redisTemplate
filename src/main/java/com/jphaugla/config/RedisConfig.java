@@ -1,11 +1,15 @@
 package com.jphaugla.config;
 
+import com.redis.lettucemod.RedisModulesClient;
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,18 +39,22 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.context.annotation.Bean;
 import java.util.concurrent.Executor;
 import java.time.Duration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import io.lettuce.core.ClientOptions;
 
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
 @EnableAsync
 @EnableRedisRepositories
-
+@EnableAutoConfiguration
 @ComponentScan("com.jphaugla")
+@Slf4j
 public class RedisConfig {
     @Autowired
     private Environment env;
     private @Value("${spring.redis.timeout}")
     Duration redisCommandTimeout;
+    
 
     @Bean(name = "redisConnectionFactory")
     @Primary
@@ -56,10 +64,15 @@ public class RedisConfig {
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .commandTimeout(redisCommandTimeout).build();
         RedisStandaloneConfiguration redisServerConf = new RedisStandaloneConfiguration();
-        redisServerConf.setHostName(env.getProperty("spring.redis.host"));
-        redisServerConf.setPort(Integer.parseInt(env.getProperty("spring.redis.port")));
-        if(env.getProperty("spring.redis.password") != null && !env.getProperty("spring.redis.password").isEmpty()) {
-            redisServerConf.setPassword(RedisPassword.of(env.getProperty("spring.redis.password")));
+        String hostname = env.getProperty("spring.redis.host");
+        String port = env.getProperty("spring.redis.port");
+        String password = env.getProperty("spring.redis.password");
+        redisServerConf.setHostName(hostname);
+        redisServerConf.setPort(Integer.parseInt(port));
+        log.info("hostname is " + hostname + " port is " + port);
+        if(password != null && !password.isEmpty()) {
+            redisServerConf.setPassword(RedisPassword.of(password));
+            log.info("password is " + password);
         }
         return new LettuceConnectionFactory(redisServerConf, clientConfig);
     }

@@ -1,7 +1,8 @@
 package com.jphaugla.boot;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -26,7 +27,7 @@ public class TransactionReturnIndex implements CommandLineRunner {
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> transactionReturnCommands = connection.sync();
+    RediSearchCommands<String,String> transactionReturnCommands = connection.sync();
     try {
       transactionReturnCommands.ftInfo(transactionReturnSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {

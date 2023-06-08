@@ -1,7 +1,8 @@
 package com.jphaugla.boot;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 
@@ -21,13 +22,14 @@ public class EmailIndex implements CommandLineRunner {
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
+
   @Value("${app.emailSearchIndexName}")
   private String emailSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> emailCommands = connection.sync();
+    RediSearchCommands<String,String> emailCommands = connection.sync();
     try {
       emailCommands.ftInfo(emailSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {

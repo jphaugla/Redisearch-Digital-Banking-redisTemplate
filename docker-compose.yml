@@ -1,9 +1,12 @@
-version: '3'
+version: '3.9'
 services:
 
-  redisstack:
+  redis:
     image: redis/redis-stack:latest
-    container_name: redisstack
+    container_name: redis
+    hostname: redis
+    environment:
+      REDIS_ARGS: "--requirepass jasonrocks"
     ports:
       - "6379:6379"
       - "8001:8001"

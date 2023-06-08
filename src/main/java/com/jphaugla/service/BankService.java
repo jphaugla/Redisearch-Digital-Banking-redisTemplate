@@ -13,6 +13,7 @@ import com.jphaugla.data.BankGenerator;
 import com.jphaugla.domain.*;
 import com.jphaugla.repository.*;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.*;

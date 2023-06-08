@@ -96,6 +96,7 @@ java -jar target/redis-0.0.1-SNAPSHOT.jar
 ```
 3.  Test the application from a separate terminal window.  This script uses an API call to generate sample banking customers, accounts and transactions.  It uses Spring ASYNC techniques to generate higher load.  A flag chooses between running the transactions pipelined in Redis or in normal non-pipelined method.
 ```bash
+source ./scripts/setEnv.sh
 ./scripts/generateData.sh
 ```
 Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this test run is using redisearch 1.0 code base.  Need to rerun this test.

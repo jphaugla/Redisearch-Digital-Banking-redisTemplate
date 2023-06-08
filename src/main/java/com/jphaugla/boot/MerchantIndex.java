@@ -1,8 +1,9 @@
 package com.jphaugla.boot;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -22,13 +23,14 @@ public class MerchantIndex implements CommandLineRunner {
   @Autowired
   private StatefulRedisModulesConnection<String,String> connection;
 
+
   @Value("${app.merchantSearchIndexName}")
   private String merchantSearchIndexName;
 
   @Override
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
-    RedisModulesCommands<String,String> merchantCommands = connection.sync();
+    RediSearchCommands<String,String> merchantCommands = connection.sync();
     try {
       merchantCommands.ftInfo(merchantSearchIndexName);
     } catch (RedisCommandExecutionException rcee) {

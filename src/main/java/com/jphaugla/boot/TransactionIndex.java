@@ -1,9 +1,10 @@
 package com.jphaugla.boot;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 
 
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class TransactionIndex implements CommandLineRunner {
   @SuppressWarnings({ "unchecked" })
   public void run(String... args) throws Exception {
 
-    RedisModulesCommands<String,String> transactionCommands = connection.sync();
+    RediSearchCommands<String,String> transactionCommands = connection.sync();
 
     try {
       transactionCommands.ftInfo(transactionSearchIndexName);

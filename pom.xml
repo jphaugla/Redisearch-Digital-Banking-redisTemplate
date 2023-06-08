@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.3</version>
+		<version>2.7.12</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jphaugla</groupId>
@@ -48,18 +48,18 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.24</version>
+			<version>1.18.26</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>2.11.1</version>
+			<version>2.12.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.redis</groupId>
 		        <artifactId>spring-lettucemod</artifactId>
-    			<version>3.0.5</version>
+    			<version>3.2.1</version>
 		</dependency>
 	</dependencies>
 
