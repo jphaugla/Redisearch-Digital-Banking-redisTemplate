@@ -8,19 +8,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
 public class AccountRepository {
-	private static final String KEY = "Account";
-
 
 	final Logger logger = LoggerFactory.getLogger(AccountRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -31,6 +33,8 @@ public class AccountRepository {
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
+	@Value("${app.accountSearchIndexName}")
+	private String accountSearchIndexName;
 
 	public AccountRepository() {
 
@@ -38,15 +42,23 @@ public class AccountRepository {
 	}
 
 	public String create(Account account) {
+		logger.info("AccountRepository create with index=" + accountSearchIndexName);
+		logger.info(" account " + account.toString());
 		if (account.getCreatedDatetime() == null) {
-			Long currentTimeMillis = System.currentTimeMillis();
-			account.setCreatedDatetime(currentTimeMillis);
-			account.setOpenDatetime(currentTimeMillis);
-			account.setLastUpdated(currentTimeMillis);
+			long currentTimeMillis = System.currentTimeMillis();
+			String stringMillis = Long.toString(currentTimeMillis);
+			account.setCreatedDatetime(stringMillis);
+			account.setOpenDatetime(stringMillis);
+			account.setLastUpdated(stringMillis);
 		}
 
 		Map<Object, Object> AccountHash = mapper.convertValue(account, Map.class);
-		redisTemplateW1.opsForHash().putAll("Account:" + account.getAccountNo(), AccountHash);
+		// while (AccountHash.values().remove(null));
+		// logger.info( "before null removal with AccountHash " + AccountHash.toString());
+		AccountHash.values().removeIf(Objects::isNull);
+
+        // logger.info( "before putall with AccountHash " + AccountHash.toString());
+		stringRedisTemplate.opsForHash().putAll(accountSearchIndexName + ':' + account.getAccountNo(), AccountHash);
 		// redisTemplate.opsForHash().putAll("Account:" + Account.getAccountId(), AccountHash);
 		// logger.info(String.format("Account with ID %s saved", account.getAccountNo()));
 		return "Success\n";
@@ -54,7 +66,7 @@ public class AccountRepository {
 
 	public Account get(String accountId) {
 		logger.info("in AccountRepository.get with Account id=" + accountId);
-		String fullKey = "Account:" + accountId;
+		String fullKey = accountSearchIndexName + ':' + accountId;
 		Map<Object, Object> AccountHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		Account account = mapper.convertValue(AccountHash, Account.class);
 		return (account);

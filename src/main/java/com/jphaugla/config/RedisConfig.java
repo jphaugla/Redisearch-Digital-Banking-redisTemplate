@@ -1,10 +1,6 @@
 package com.jphaugla.config;
 
-import com.redis.lettucemod.RedisModulesClient;
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.resource.ClientResources;
-import io.lettuce.core.resource.DefaultClientResources;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,12 +15,15 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import redis.clients.jedis.JedisPoolConfig;
+
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.core.env.Environment;
 
@@ -40,7 +39,6 @@ import org.springframework.context.annotation.Bean;
 import java.util.concurrent.Executor;
 import java.time.Duration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import io.lettuce.core.ClientOptions;
 
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
@@ -58,14 +56,16 @@ public class RedisConfig {
 
     @Bean(name = "redisConnectionFactory")
     @Primary
-    public LettuceConnectionFactory redisConnectionFactory() {
-        // LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
-         //       .commandTimeout(redisCommandTimeout).poolConfig(new GenericObjectPoolConfig()).build();
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .commandTimeout(redisCommandTimeout).build();
+    public RedisConnectionFactory redisConnectionFactory() {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxIdle(50);
+        poolConfig.setMaxTotal(50);
+        JedisClientConfiguration.JedisClientConfigurationBuilder clientConfig = JedisClientConfiguration.builder();
+        clientConfig.usePooling().poolConfig(poolConfig);
+        JedisConnectionFactory jedisConnectionFactory;
         RedisStandaloneConfiguration redisServerConf = new RedisStandaloneConfiguration();
-        String hostname = env.getProperty("spring.redis.host");
-        String port = env.getProperty("spring.redis.port");
+        String hostname = env.getProperty("spring.redis.host", "localhost");
+        String port = env.getProperty("spring.redis.port", "6379");
         String password = env.getProperty("spring.redis.password");
         redisServerConf.setHostName(hostname);
         redisServerConf.setPort(Integer.parseInt(port));
@@ -74,7 +74,8 @@ public class RedisConfig {
             redisServerConf.setPassword(RedisPassword.of(password));
             log.info("password is " + password);
         }
-        return new LettuceConnectionFactory(redisServerConf, clientConfig);
+        jedisConnectionFactory = new JedisConnectionFactory(redisServerConf, clientConfig.build());
+        return jedisConnectionFactory;
     }
 
     @Bean
@@ -84,8 +85,9 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<Long>(Long.class));
-        // redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
+        // redisTemplate.setHashValueSerializer(new GenericToStringSerializer<Long>(Long.class));
+        // redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }

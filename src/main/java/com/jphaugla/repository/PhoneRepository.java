@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,8 +21,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public class PhoneRepository{
-	private static final String KEY = "Phone";
-
+	@Value("${app.phoneSearchIndexName}")
+	private String phoneSearchIndexName;
 
 	final Logger logger = LoggerFactory.getLogger(com.jphaugla.repository.PhoneRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -41,7 +42,7 @@ public class PhoneRepository{
 	public String create(Phone phone) {
 
 		Map<Object, Object> phoneHash = mapper.convertValue(phone, Map.class);
-		redisTemplateW1.opsForHash().putAll("Phone:" + phone.getPhoneNumber(), phoneHash);
+		redisTemplateW1.opsForHash().putAll(phoneSearchIndexName + ':' + phone.getPhoneNumber(), phoneHash);
 		// redisTemplate.opsForHash().putAll("Phone:" + phone.getPhoneId(), phoneHash);
 		// logger.info(String.format("Phone with ID %s saved", phone.getPhoneNumber()));
 		return "Success\n";

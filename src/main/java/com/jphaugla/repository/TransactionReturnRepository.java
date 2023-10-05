@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,8 +22,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public class TransactionReturnRepository{
-	private static final String KEY = "TransactionReturn";
-
 
 	final Logger logger = LoggerFactory.getLogger(TransactionReturnRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -30,6 +29,8 @@ public class TransactionReturnRepository{
 	@Autowired
 	@Qualifier("redisTemplateW1")
 	private RedisTemplate<Object, Object> redisTemplateW1;
+	@Value("${app.transactionReturnSearchIndexName}")
+	private String transactionReturnSearchIndexName;
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
@@ -41,7 +42,7 @@ public class TransactionReturnRepository{
 
 	public String create(TransactionReturn transactionReturn) {
 		Map<Object, Object> transactionReturnHash = mapper.convertValue(transactionReturn, Map.class);
-		redisTemplateW1.opsForHash().putAll("TransactionReturn:" + transactionReturn.getReasonCode(), transactionReturnHash);
+		redisTemplateW1.opsForHash().putAll(transactionReturnSearchIndexName + ':' + transactionReturn.getReasonCode(), transactionReturnHash);
 		// redisTemplate.opsForHash().putAll("TransactionReturn:" + transactionReturn.getTransactionReturnId(), transactionReturnHash);
 		logger.info(String.format("TransactionReturn with ID %s saved", transactionReturn.getReasonCode()));
 		return "Success\n";

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.12</version>
+		<version>3.1.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jphaugla</groupId>
@@ -16,7 +16,8 @@
 	<packaging>jar</packaging>
 
 	<properties>
-                <start-class>com.jphaugla.DemoApplication</start-class>
+		<start-class>com.jphaugla.DemoApplication</start-class>
+		<version.jedis>4.4.3</version.jedis>
 	</properties>
 
 	<dependencies>
@@ -25,8 +26,9 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.lettuce</groupId>
-			<artifactId>lettuce-core</artifactId>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${version.jedis}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -48,7 +50,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.26</version>
+			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -56,11 +58,7 @@
 			<artifactId>joda-time</artifactId>
 			<version>2.12.5</version>
 		</dependency>
-		<dependency>
-			<groupId>com.redis</groupId>
-		        <artifactId>spring-lettucemod</artifactId>
-    			<version>3.3.1</version>
-		</dependency>
+
 	</dependencies>
 
 	<build>

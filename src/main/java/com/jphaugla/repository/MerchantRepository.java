@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -22,7 +23,8 @@ import org.springframework.stereotype.Repository;
 
 public class MerchantRepository{
 	private static final String KEY = "Merchant";
-
+	@Value("${app.merchantSearchIndexName}")
+	private String merchantSearchIndexName;
 
 	final Logger logger = LoggerFactory.getLogger(com.jphaugla.repository.MerchantRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -42,7 +44,7 @@ public class MerchantRepository{
 	public String create(Merchant merchant) {
 
 		Map<Object, Object> merchantHash = mapper.convertValue(merchant, Map.class);
-		redisTemplateW1.opsForHash().putAll("Merchant:" + merchant.getName(), merchantHash);
+		redisTemplateW1.opsForHash().putAll(merchantSearchIndexName + ':' + merchant.getName(), merchantHash);
 		// redisTemplate.opsForHash().putAll("Merchant:" + merchant.getMerchantId(), merchantHash);
 		// logger.info(String.format("Merchant with ID %s saved", merchant.getName()));
 		return "Success\n";

@@ -20,7 +20,7 @@ public class Customer implements Serializable {
     private  String city;
     private  String countryCode;
     private  String createdBy;
-    private Long createdDatetime;
+    private String createdDatetime;
     private  String customerOriginSystem;
     private  String customerStatus;
     private  String customerType;
@@ -31,7 +31,7 @@ public class Customer implements Serializable {
     private  String governmentId;
     private  String governmentIdType;
     private  String lastName;
-    private  Long lastUpdated;
+    private  String lastUpdated;
     private  String lastUpdatedBy;
     private  String middleName;
     private  String prefix;

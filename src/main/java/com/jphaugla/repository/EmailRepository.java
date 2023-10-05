@@ -13,15 +13,16 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
+
+
 @Repository
 
 public class EmailRepository{
-	private static final String KEY = "Email";
-
 
 	final Logger logger = LoggerFactory.getLogger(com.jphaugla.repository.EmailRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -29,6 +30,8 @@ public class EmailRepository{
 	@Autowired
 	@Qualifier("redisTemplateW1")
 	private RedisTemplate<Object, Object> redisTemplateW1;
+	@Value("${app.emailSearchIndexName}")
+	private String emailSearchIndexName;
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
@@ -41,7 +44,7 @@ public class EmailRepository{
 	public String create(Email email) {
 
 		Map<Object, Object> emailHash = mapper.convertValue(email, Map.class);
-		redisTemplateW1.opsForHash().putAll("Email:" + email.getEmailAddress(), emailHash);
+		redisTemplateW1.opsForHash().putAll(emailSearchIndexName + ':' + email.getEmailAddress(), emailHash);
 		// for demo purposed add a member to the set for the Customer
 		stringRedisTemplate.opsForSet().add("CustEmail:" + email.getCustomerId(), email.getEmailAddress());
 		// redisTemplate.opsForHash().putAll("Email:" + email.getEmailId(), emailHash);

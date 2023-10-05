@@ -30,7 +30,11 @@ public class BankGenerator {
 	public static List<String> whiteList = new ArrayList<String>();
 
 	public static String getRandomCustomerId(int noOfCustomers){
-		return BASE + new Double(Math.random()*noOfCustomers).intValue() + "";
+		int max = noOfCustomers + 1;
+		int min = 1;
+		int random_int = (int)Math.floor(Math.random() * (max - min +1) + min);
+		return BASE + Integer.toString(random_int);
+		// return BASE + new Double(Math.random()*noOfCustomers).intValue() + "";
 	}
 
 	public static List<Email> createEmail (String customerId) {
@@ -68,8 +72,8 @@ public class BankGenerator {
         customer.setLastUpdatedBy("Java Test");
         customer.setCustomerType("Retail");
 
-		customer.setCreatedDatetime(currentDate.getTime());
-		customer.setLastUpdated(currentDate.getTime());
+		customer.setCreatedDatetime(Long.toString(currentDate.getTime()));
+		customer.setLastUpdated(Long.toString(currentDate.getTime()));
 
 		customer.setCustomerOriginSystem("RCIF");
 		customer.setCustomerStatus("A");
@@ -155,8 +159,8 @@ public class BankGenerator {
 			account.setAccountType(accountTypes.get(i));
 			account.setAccountStatus("Open");
             account.setLastUpdatedBy("Java Test");
-            account.setLastUpdated(currentDate.getTime());
-            account.setCreatedDatetime(currentDate.getTime());
+            account.setLastUpdated(Long.toString(currentDate.getTime()));
+            account.setCreatedDatetime(Long.toString(currentDate.getTime()));
             account.setCreatedBy("Java Test");
 
 
@@ -174,18 +178,22 @@ public class BankGenerator {
 
 		int noOfMillis = noOfDays * DAY_MILLIS;
 		// create time by adding a random no of millis
-		DateTime newDate = date.plusMillis(new Double(Math.random() * noOfMillis).intValue() + 1);
+		double v = Math.random() * noOfMillis;
+		int intValue = (int) v;
+		DateTime newDate = date.plusMillis(intValue);
 
 		return createRandomTransaction(newDate, idx, account, key_suffix, merchants, transactionReturns);
 	}
 	public static Transaction createRandomTransaction(DateTime newDate, Integer idx, Account account,
 													  String key_suffix,List<Merchant> merchants,
 													  List<TransactionReturn> transactionReturns) {
-
-		String location = locations.get(new Double(Math.random() * locations.size()).intValue());
-		int noOfItems = new Double(Math.ceil(Math.random() * 3)).intValue();
-		double doubleRandomLocation = new Double(Math.random() * issuers.length);
-		int randomLocation = (int) doubleRandomLocation;
+        double v = Math.random() * locations.size();
+		int intValue = (int) v;
+		String location = locations.get(intValue);
+		v = Math.ceil(Math.random() * 3);
+		int noOfItems = (int) v;
+		v = Math.random() * issuers.length;
+		int randomLocation = (int) v;
 
 		Date aNewDate = newDate.toDate();
 		Date oldDate = new Date(0);
@@ -205,17 +213,17 @@ public class BankGenerator {
         String transactionStat = transactionStatus[randomLocation];
         transaction.setStatus(transactionStat);
         if(transactionStat == "POSTED") {
-        	transaction.setPostingDate(aNewDate.getTime());
-        	transaction.setSettlementDate(date_minus_one.getTime());
-        	transaction.setInitialDate(date_minus_two.getTime());
+        	transaction.setPostingDate(Long.toString(aNewDate.getTime()));
+        	transaction.setSettlementDate(Long.toString(date_minus_one.getTime()));
+        	transaction.setInitialDate(Long.toString(date_minus_two.getTime()));
 		} else if (transactionStat == "SETTLED") {
-			transaction.setSettlementDate(aNewDate.getTime());
-			transaction.setInitialDate(date_minus_one.getTime());
-			transaction.setPostingDate(oldDate.getTime());
+			transaction.setSettlementDate(Long.toString(aNewDate.getTime()));
+			transaction.setInitialDate(Long.toString(date_minus_one.getTime()));
+			transaction.setPostingDate(Long.toString(oldDate.getTime()));
 		} else {
-			transaction.setInitialDate(aNewDate.getTime());
-			transaction.setPostingDate(oldDate.getTime());
-			transaction.setSettlementDate(oldDate.getTime());
+			transaction.setInitialDate(Long.toString(aNewDate.getTime()));
+			transaction.setPostingDate(Long.toString(oldDate.getTime()));
+			transaction.setSettlementDate(Long.toString(oldDate.getTime()));
 		}
 		transaction.setLocation(location);
 		if(randomLocation<5) {
@@ -250,7 +258,7 @@ public class BankGenerator {
 
 		for (int i = 0; i < noOfItems; i++) {
 
-			double amount = new Double(Math.random() * 100);
+			double amount = Math.random() * 100;
 			items.put("item" + i, amount);
 
 			totalAmount += amount;
@@ -280,11 +288,13 @@ public class BankGenerator {
 		}
 
 		public int getTimeTakenSeconds(){
-			return new Double(this.timeTaken / 1000).intValue();
+			double v = (double) this.timeTaken / 1000;
+            return ((int) v);
 		}
 
 		public String getTimeTakenMinutes(){
-			return String.format("%1$,.2f", new Double(this.timeTaken / (1000*60)));
+			double v = (double) this.timeTaken / (1000*60);
+			return String.format("%1$,.2f", v);
 		}
 
 	}

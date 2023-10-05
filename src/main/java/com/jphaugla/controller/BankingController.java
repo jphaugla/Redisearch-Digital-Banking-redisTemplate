@@ -5,9 +5,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import com.jphaugla.domain.*;
-
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import com.jphaugla.service.BankService;
+import redis.clients.jedis.search.SearchResult;
+import redis.clients.jedis.search.aggr.AggregationResult;
+
 
 
 @RestController
@@ -51,7 +51,7 @@ public class BankingController {
 	public String generateData (@RequestParam Integer noOfCustomers, @RequestParam Integer noOfTransactions,
 								@RequestParam Integer noOfDays, @RequestParam String key_suffix)
 			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException {
-
+        logger.info("starting generate data ");
 		bankService.generateData(noOfCustomers, noOfTransactions, noOfDays, key_suffix);
 
 		return "Done";
@@ -62,7 +62,7 @@ public class BankingController {
 	public String testPipeline (@RequestParam Integer noOfRecords)
 			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException {
 
-		bankService.testPipeline(noOfRecords);
+		// bankService.testPipeline(noOfRecords);
 
 		return "Done";
 	}
@@ -80,21 +80,22 @@ public class BankingController {
 		return bankService.getCustomerByEmail(email);
 	}
 
+
 	@GetMapping("/customerByStateCity")
 
-	public SearchResults<String, String> getCustomerByStateCity(@RequestParam String state, @RequestParam String city) {
+	public SearchResult getCustomerByStateCity(@RequestParam String state, @RequestParam String city) {
 		logger.debug("IN get customerByState with state as " + state + " and city=" + city);
 		return bankService.getCustomerByStateCity(state, city);
 	}
 	@GetMapping("/customerByZipcodeLastname")
 
-	public SearchResults<String, String> getCustomerIdsbyZipcodeLastname(@RequestParam String zipcode, @RequestParam String lastname) {
+	public SearchResult getCustomerIdsbyZipcodeLastname(@RequestParam String zipcode, @RequestParam String lastname) {
 		logger.debug("IN get getCustomerIdsbyZipcodeLastname with zipcode as " + zipcode + " and lastname=" + lastname);
 		return bankService.getCustomerIdsbyZipcodeLastname(zipcode, lastname);
 	}
 	@GetMapping("/merchantCategoryTransactions")
 
-	public SearchResults<String,String> getMerchantCategoryTransactions
+	public SearchResult getMerchantCategoryTransactions
 			(@RequestParam String merchantCategory, @RequestParam String account,
 			 @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
 			 @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate)
@@ -105,7 +106,7 @@ public class BankingController {
 	}
 	@GetMapping("/merchantTransactions")
 
-	public SearchResults<String,String> getMerchantTransactions
+	public SearchResult getMerchantTransactions
 			(@RequestParam String merchant, @RequestParam String account,
 			 @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
 			 @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate)
@@ -115,19 +116,22 @@ public class BankingController {
 		return bankService.getMerchantTransactions(merchant, account, startDate, endDate);
 	}
 
+
 	@GetMapping ("/transactionStatusReport")
 
-	public AggregateResults<String> transactionStatusReport () {
-		AggregateResults<String> keycounts = new AggregateResults<>();
+	public List<Map<String, Object>>  transactionStatusReport () {
 		return bankService.transactionStatusReport();
 
 	}
+
+
 	@GetMapping("/returned_transactions")
 
-	public SearchResults<String,String> getReturnedTransaction () {
+	public SearchResult getReturnedTransaction () {
 		logger.info("in bankcontroller getReturnedTransaction");
 		return bankService.getTransactionReturns();
 	}
+	/*
 
 	@GetMapping("/statusChangeTransactions")
 
@@ -143,10 +147,11 @@ public class BankingController {
 		 return changeReport;
 
 	}
+	*/
 
 	@GetMapping("/creditCardTransactions")
 
-	public SearchResults<String, String> getCreditCardTransactions
+	public SearchResult getCreditCardTransactions
 			(@RequestParam String creditCard,
 			 @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
 			 @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate)
@@ -158,7 +163,7 @@ public class BankingController {
 
 	@GetMapping("/accountTransactions")
 
-	public SearchResults<String, String>  getAccountTransactions
+	public SearchResult  getAccountTransactions
 			(@RequestParam String accountNo,
 			 @RequestParam(name = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
 			 @RequestParam(name = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate)
@@ -168,7 +173,6 @@ public class BankingController {
 		return bankService.getAccountTransactions(accountNo, startDate, endDate);
 
 	}
-
 
 	@GetMapping("/addTag")
 
@@ -186,13 +190,12 @@ public class BankingController {
 
 	@GetMapping("/getTaggedTransactions")
 
-	public SearchResults<String,String> getTaggedTransactions
+	public SearchResult getTaggedTransactions
 			(@RequestParam String accountNo, @RequestParam String tag)
 			throws ParseException {
 		logger.debug("In getTaggedTransactions accountNo=" + accountNo + " tag=" + tag );
 		return bankService.getTaggedTransactions(accountNo, tag);
 	}
-
 	@GetMapping("/getTransaction")
 	public Transaction getTransaction(@RequestParam String transactionID) {
 		Transaction transaction = bankService.getTransaction(transactionID);

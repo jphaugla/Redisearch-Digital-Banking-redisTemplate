@@ -24,9 +24,9 @@ public class Transaction implements Serializable {
     private String amount;
     private String tranCd ;
     private String description;
-    private Long initialDate;
-    private Long settlementDate;
-    private Long postingDate;
+    private String initialDate;
+    private String settlementDate;
+    private String postingDate;
     //  this is authorized, posted, settled
     private String status   ;
     private String transactionReturn;

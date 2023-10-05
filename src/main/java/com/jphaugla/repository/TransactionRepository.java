@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Repository;
 
 public class TransactionRepository{
 	private static final String KEY = "Transaction";
-
+	@Value("${app.transactionSearchIndexName}")
+	private String transactionSearchIndexName;
 
 	final Logger logger = LoggerFactory.getLogger(TransactionRepository.class);
 	ObjectMapper mapper = new ObjectMapper();
@@ -39,13 +41,15 @@ public class TransactionRepository{
 	}
 
 	public String create(Transaction transaction) {
+		logger.info("entering TransactionReposistory create transaction " + transaction.toString());
 		if (transaction.getInitialDate() == null) {
-			Long currentTimeMillis = System.currentTimeMillis();
-			transaction.setInitialDate(currentTimeMillis);
+			long currentTimeMillis = System.currentTimeMillis();
+			transaction.setInitialDate(Long.toString(currentTimeMillis));
 		}
 
 		Map<Object, Object> transactionHash = mapper.convertValue(transaction, Map.class);
-		redisTemplateW1.opsForHash().putAll("Transaction:" + transaction.getTranId(), transactionHash);
+		while (transactionHash.values().remove(null));
+		stringRedisTemplate.opsForHash().putAll(transactionSearchIndexName + ':' + transaction.getTranId(), transactionHash);
 		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);
 		// logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
 		return "Success\n";
