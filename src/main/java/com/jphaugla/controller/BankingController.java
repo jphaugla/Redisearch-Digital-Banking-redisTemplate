@@ -4,7 +4,10 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jphaugla.domain.*;
+import com.jphaugla.service.TopicProducer;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import redis.clients.jedis.search.aggr.AggregationResult;
 
 
 
+@RequiredArgsConstructor
 @RestController
 public class BankingController {
 
@@ -24,6 +28,7 @@ public class BankingController {
 	private BankService bankService = BankService.getInstance();
 
 	private static final Logger logger = LoggerFactory.getLogger(BankingController.class);
+	private final TopicProducer topicProducer;
 	// customer
 	@RequestMapping("/save_customer")
 	public String saveCustomer() throws ParseException {
@@ -31,7 +36,10 @@ public class BankingController {
 		return "Done";
 	}
 
-
+	@GetMapping (value = "/send")
+	public void send(){
+		topicProducer.send("Mensagem de teste enviada ao tópico");
+	}
 	//  account
 	@RequestMapping("/save_account")
 	public String saveAccount() throws ParseException {
@@ -49,10 +57,11 @@ public class BankingController {
 	@GetMapping("/generateData")
 	@ResponseBody
 	public String generateData (@RequestParam Integer noOfCustomers, @RequestParam Integer noOfTransactions,
-								@RequestParam Integer noOfDays, @RequestParam String key_suffix)
-			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException {
-        logger.info("starting generate data ");
-		bankService.generateData(noOfCustomers, noOfTransactions, noOfDays, key_suffix);
+								@RequestParam Integer noOfDays, @RequestParam String key_suffix,
+								@RequestParam Boolean doKafka)
+			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException, JsonProcessingException {
+        logger.info("starting generate data with doKafka=" + doKafka);
+		bankService.generateData(noOfCustomers, noOfTransactions, noOfDays, key_suffix, doKafka);
 
 		return "Done";
 	}

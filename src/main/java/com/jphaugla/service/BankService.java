@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jphaugla.data.BankGenerator;
 import com.jphaugla.domain.*;
@@ -45,6 +46,9 @@ public class BankService {
 	private static BankService bankService = new BankService();
 	@Autowired
 	private AsyncService asyncService;
+
+	@Autowired
+	private TopicProducer topicProducer;
 	@Autowired
 	private CustomerRepository customerRepository;
 	@Autowired
@@ -458,8 +462,8 @@ public class BankService {
 	*/
 
 	public void generateData(Integer noOfCustomers, Integer noOfTransactions, Integer noOfDays,
-							 String key_suffix)
-			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException, RedisCommandExecutionException {
+							 String key_suffix, Boolean doKafka)
+			throws ParseException, ExecutionException, InterruptedException, IllegalAccessException, RedisCommandExecutionException, JsonProcessingException {
 
 		List<Account> accounts = createCustomerAccount(noOfCustomers, key_suffix);
 		logger.info("after accounts");
@@ -488,7 +492,10 @@ public class BankService {
 				transactionIndex++;
 				Transaction randomTransaction = BankGenerator.createRandomTransaction(noOfDays, transactionIndex, account, key_suffix,
 							merchants, transactionReturns);
-				transaction_cntr = writeTransactionFuture(randomTransaction);
+				if (doKafka)
+					writeTransactionKafka(randomTransaction);
+				else
+					transaction_cntr = writeTransactionFuture(randomTransaction);
 			}
 		}
 		transaction_cntr.get();
@@ -496,6 +503,17 @@ public class BankService {
 		logger.info("Finished writing " + totalTransactions + " created in " +
 				transTimer.getTimeTakenSeconds() + " seconds.");
 	}
+
+	private void writeTransactionKafka(Transaction randomTransaction) throws JsonProcessingException {
+		try {
+			String jsonStr = objectMapper.writeValueAsString(randomTransaction);
+			topicProducer.send(jsonStr);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+
+	};
+
 	//
 	//  Account
 	//
