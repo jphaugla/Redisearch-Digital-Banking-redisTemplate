@@ -2,6 +2,7 @@ package com.jphaugla.controller;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.jphaugla.service.BankService;
@@ -37,7 +39,7 @@ public class BankingController {
 	}
 
 	@GetMapping (value = "/send")
-	public void send(){
+	public void send() throws ExecutionException, InterruptedException {
 		topicProducer.send("Mensagem de teste enviada ao tópico");
 	}
 	//  account

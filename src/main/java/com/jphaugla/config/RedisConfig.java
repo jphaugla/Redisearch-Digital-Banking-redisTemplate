@@ -3,6 +3,8 @@ package com.jphaugla.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,6 +19,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaAdmin;
 import redis.clients.jedis.JedisPoolConfig;
 
 
@@ -36,6 +40,9 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.context.annotation.Bean;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.time.Duration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -103,4 +110,24 @@ public class RedisConfig {
         executor.setThreadNamePrefix("Async-");
         return executor;
     }
+    /* @Bean
+    public KafkaAdmin admin()
+    {
+        Map<String, Object> configs = new HashMap<>();
+        String kafkaBootstrap = env.getProperty("spring.kafka.producer.bootstrap-servers");
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                kafkaBootstrap);
+        return new KafkaAdmin(configs);
+    }
+    @Bean
+    public NewTopic topic1()
+    {
+        String topic_name=env.getProperty("topic.name.producer");
+        return TopicBuilder.name(topic_name)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+     */
 }

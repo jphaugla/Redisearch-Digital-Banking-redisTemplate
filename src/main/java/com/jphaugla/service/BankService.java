@@ -26,6 +26,7 @@ import org.springframework.core.env.Environment;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.ConnectionPoolConfig;
 import redis.clients.jedis.HostAndPort;
@@ -483,6 +484,7 @@ public class BankService {
 		merchantRepository.createAll(merchants);
 		logger.info("completed merchant next is transactionReturn");
 		transactionReturnRepository.createAll(transactionReturns);
+		CompletableFuture<SendResult<String, String>> kafka_cntr = null;
 		CompletableFuture<Integer> transaction_cntr = null;
 		int transactionIndex = 0;
 		List<Transaction> transactionList = new ArrayList<>();
@@ -498,21 +500,23 @@ public class BankService {
 					transaction_cntr = writeTransactionFuture(randomTransaction);
 			}
 		}
-		transaction_cntr.get();
+		if(!doKafka) {
+			transaction_cntr.get();
+		}
 		transTimer.end();
 		logger.info("Finished writing " + totalTransactions + " created in " +
 				transTimer.getTimeTakenSeconds() + " seconds.");
 	}
 
 	private void writeTransactionKafka(Transaction randomTransaction) throws JsonProcessingException {
-		try {
-			String jsonStr = objectMapper.writeValueAsString(randomTransaction);
-			topicProducer.send(jsonStr);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            String jsonStr = objectMapper.writeValueAsString(randomTransaction);
+            topicProducer.send(jsonStr);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
-	};
+    };
 
 	//
 	//  Account
