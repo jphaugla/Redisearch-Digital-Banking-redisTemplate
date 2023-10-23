@@ -36,6 +36,8 @@ public class CreateIndexes implements CommandLineRunner {
   private String transactionSearchIndexName;
   @Value("${app.transactionReturnSearchIndexName}")
   private String transactionReturnSearchIndexName;
+  @Value("${app.disputeSearchIndexName}")
+  private String disputeSearchIndexName;
 
   @Autowired
   private Environment env;
@@ -52,11 +54,11 @@ public class CreateIndexes implements CommandLineRunner {
     Schema accountIndexSchema = new Schema()
             .addField(new Schema.Field(FieldName.of("customerId").as("customerId"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("accountType").as("accountType"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("accountOriginSystem").as("accountOriginSystem"), Schema.FieldType.TAG))
+        //    .addField(new Schema.Field(FieldName.of("accountOriginSystem").as("accountOriginSystem"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("accountStatus").as("accountStatus"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("cardNum").as("cardNum"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("openDate").as("openDate"), Schema.FieldType.NUMERIC))
-            .addField(new Schema.Field(FieldName.of( "lastUpdated").as("lastUpdated"), Schema.FieldType.NUMERIC))
+         //   .addField(new Schema.Field(FieldName.of( "lastUpdated").as("lastUpdated"), Schema.FieldType.NUMERIC))
             ;
     tryIndex(client, accountSearchIndexName, accountIndexSchema);
 
@@ -67,7 +69,8 @@ public class CreateIndexes implements CommandLineRunner {
             .addField(new Schema.Field(FieldName.of("lastName").as("lastName"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("stateAbbreviation").as("stateAbbreviation"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("zipcode").as("zipcode"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("customerId").as("customerId"), Schema.FieldType.TAG));
+         //   .addField(new Schema.Field(FieldName.of("customerId").as("customerId"), Schema.FieldType.TAG))
+            ;
     tryIndex(client, customerSearchIndexName, customerIndexSchema);
 
 
@@ -94,14 +97,14 @@ public class CreateIndexes implements CommandLineRunner {
 
     Schema transactionIndexSchema = new Schema()
             .addField(new Schema.Field(FieldName.of("accountNo").as("accountNo"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("amountType").as("amountType"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("amountType").as("amountType"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("merchant").as("merchant"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("status").as("status"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("description").as("description"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("referenceKeyType").as("referenceKeyType"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("referenceValue").as("referenceValue"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("description").as("description"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("referenceKeyType").as("referenceKeyType"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("referenceValue").as("referenceValue"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("tranCd").as("tranCd"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("location").as("location"), Schema.FieldType.TAG))
+        //    .addField(new Schema.Field(FieldName.of("location").as("location"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("transactionReturn").as("transactionReturn"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("initialDate").as("initialDate"), Schema.FieldType.NUMERIC))
             .addField(new Schema.Field(FieldName.of( "settlementDate").as("settlementDate"), Schema.FieldType.NUMERIC))
@@ -115,6 +118,11 @@ public class CreateIndexes implements CommandLineRunner {
             .addField(new Schema.Field(FieldName.of("reasonDescription").as("reasonDescription"), Schema.FieldType.TAG))
             ;
     tryIndex(client, transactionReturnSearchIndexName, transactionReturnIndexSchema);
+    Schema disputeIndexSchema = new Schema()
+            .addField(new Schema.Field(FieldName.of("reasonCode").as("reasonCode"), Schema.FieldType.TAG))
+            .addField(new Schema.Field(FieldName.of("reasonDescription").as("reasonDescription"), Schema.FieldType.TAG))
+            ;
+    tryIndex(client, disputeSearchIndexName, disputeIndexSchema);
   }
   public void tryIndex(UnifiedJedis jedis_client, String indexName, Schema schema) {
     log.info("rebuilding index on " + indexName);

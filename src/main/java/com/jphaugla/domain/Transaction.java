@@ -29,6 +29,7 @@ public class Transaction implements Serializable {
     private String postingDate;
     //  this is authorized, posted, settled
     private String status   ;
+    private String disputeId;
     private String transactionReturn;
     private String location;
     private String transactionTags;

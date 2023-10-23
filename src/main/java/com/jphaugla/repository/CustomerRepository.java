@@ -25,11 +25,9 @@ public class CustomerRepository{
 
 
 	final Logger logger = LoggerFactory.getLogger(CustomerRepository.class);
-	ObjectMapper mapper = new ObjectMapper();
-
 	@Autowired
-	@Qualifier("redisTemplateW1")
-	private RedisTemplate<Object, Object> redisTemplateW1;
+	ObjectMapper objectMapper;
+
 	@Value("${app.customerSearchIndexName}")
 	private String customerSearchIndexName;
 
@@ -48,10 +46,10 @@ public class CustomerRepository{
 			customer.setLastUpdated(Long.toString(currentTimeMillis));
 		}
 
-		Map<Object, Object> customerHash = mapper.convertValue(customer, Map.class);
+		Map<Object, Object> customerHash = objectMapper.convertValue(customer, Map.class);
 		customerHash.values().removeIf(Objects::isNull);
 
-		stringRedisTemplate.opsForHash().putAll(customerSearchIndexName + ':' + customer.getCustomerId(), customerHash);
+		stringRedisTemplate.opsForHash().putAll(makeKey(customer.getCustomerId()), customerHash);
 		// redisTemplate.opsForHash().putAll("Customer:" + customer.getCustomerId(), customerHash);
 		// logger.info(String.format("Customer with ID %s saved", customer.getCustomerId()));
 		return "Success\n";
@@ -59,10 +57,13 @@ public class CustomerRepository{
 
 	public Customer get(String customerId) {
 		// logger.info("in CustomerRepository.get with customer id=" + customerId);
-		String fullKey = "Customer:" + customerId;
+		String fullKey = makeKey(customerId);
 		Map<Object, Object> customerHash = stringRedisTemplate.opsForHash().entries(fullKey);
-		Customer customer = mapper.convertValue(customerHash, Customer.class);
+		Customer customer = objectMapper.convertValue(customerHash, Customer.class);
 		return (customer);
+	}
+	private String makeKey(String customerId) {
+		return customerSearchIndexName + ':' + customerId;
 	}
 
 }

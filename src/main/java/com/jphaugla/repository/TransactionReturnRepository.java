@@ -5,6 +5,7 @@ import com.jphaugla.domain.TransactionReturn;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,16 +20,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
+@Slf4j
 @Repository
 
 public class TransactionReturnRepository{
 
-	final Logger logger = LoggerFactory.getLogger(TransactionReturnRepository.class);
-	ObjectMapper mapper = new ObjectMapper();
-
 	@Autowired
-	@Qualifier("redisTemplateW1")
-	private RedisTemplate<Object, Object> redisTemplateW1;
+	ObjectMapper objectMapper;
+
 	@Value("${app.transactionReturnSearchIndexName}")
 	private String transactionReturnSearchIndexName;
 
@@ -37,14 +36,14 @@ public class TransactionReturnRepository{
 
 	public TransactionReturnRepository() {
 
-		logger.info("TransactionReturnRepository constructor");
+		log.info("TransactionReturnRepository constructor");
 	}
 
 	public String create(TransactionReturn transactionReturn) {
-		Map<Object, Object> transactionReturnHash = mapper.convertValue(transactionReturn, Map.class);
-		redisTemplateW1.opsForHash().putAll(transactionReturnSearchIndexName + ':' + transactionReturn.getReasonCode(), transactionReturnHash);
+		Map<Object, Object> transactionReturnHash = objectMapper.convertValue(transactionReturn, Map.class);
+		stringRedisTemplate.opsForHash().putAll(makeKey(transactionReturn.getReasonCode()), transactionReturnHash);
 		// redisTemplate.opsForHash().putAll("TransactionReturn:" + transactionReturn.getTransactionReturnId(), transactionReturnHash);
-		logger.info(String.format("TransactionReturn with ID %s saved", transactionReturn.getReasonCode()));
+		log.info(String.format("TransactionReturn with ID %s saved", transactionReturn.getReasonCode()));
 		return "Success\n";
 	}
 	public String createAll(List<TransactionReturn> transactionReturnList) {
@@ -55,12 +54,14 @@ public class TransactionReturnRepository{
 	}
 
 	public TransactionReturn get(String transactionReturnId) {
-		logger.info("in TransactionReturnRepository.get with transactionReturn id=" + transactionReturnId);
-		String fullKey = "TransactionReturn:" + transactionReturnId;
+		log.info("in TransactionReturnRepository.get with transactionReturn id=" + transactionReturnId);
+		String fullKey = makeKey(transactionReturnId);
 		Map<Object, Object> transactionReturnHash = stringRedisTemplate.opsForHash().entries(fullKey);
-		TransactionReturn transactionReturn = mapper.convertValue(transactionReturnHash, TransactionReturn.class);
+		TransactionReturn transactionReturn = objectMapper.convertValue(transactionReturnHash, TransactionReturn.class);
 		return (transactionReturn);
 	}
-
+    private String makeKey(String transactionReturnId) {
+		return transactionReturnSearchIndexName + ':' + transactionReturnId;
+	}
 
 }

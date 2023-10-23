@@ -1,6 +1,8 @@
 package com.jphaugla.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class TopicProducer {
+    private static final Logger logger = LoggerFactory.getLogger(TopicProducer.class);
 
     @Value("${topic.name.producer}")
     private String topicName;
@@ -23,10 +26,10 @@ public class TopicProducer {
         CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                System.out.println("Sent message=[" + message +
+                logger.info("Sent message=[" + message +
                         "] with offset=[" + result.getRecordMetadata().offset() + "]");
             } else {
-                System.out.println("Unable to send message=[" +
+                logger.info("Unable to send message=[" +
                         message + "] due to : " + ex.getMessage());
             }
         });

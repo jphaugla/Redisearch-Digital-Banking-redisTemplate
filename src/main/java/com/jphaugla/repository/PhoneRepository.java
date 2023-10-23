@@ -25,11 +25,8 @@ public class PhoneRepository{
 	private String phoneSearchIndexName;
 
 	final Logger logger = LoggerFactory.getLogger(com.jphaugla.repository.PhoneRepository.class);
-	ObjectMapper mapper = new ObjectMapper();
-
 	@Autowired
-	@Qualifier("redisTemplateW1")
-	private RedisTemplate<Object, Object> redisTemplateW1;
+	ObjectMapper objectMapper;
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
@@ -41,8 +38,8 @@ public class PhoneRepository{
 
 	public String create(Phone phone) {
 
-		Map<Object, Object> phoneHash = mapper.convertValue(phone, Map.class);
-		redisTemplateW1.opsForHash().putAll(phoneSearchIndexName + ':' + phone.getPhoneNumber(), phoneHash);
+		Map<Object, Object> phoneHash = objectMapper.convertValue(phone, Map.class);
+		stringRedisTemplate.opsForHash().putAll(makeKey(phone.getPhoneNumber()), phoneHash);
 		// redisTemplate.opsForHash().putAll("Phone:" + phone.getPhoneId(), phoneHash);
 		// logger.info(String.format("Phone with ID %s saved", phone.getPhoneNumber()));
 		return "Success\n";
@@ -50,13 +47,15 @@ public class PhoneRepository{
 
 	public Optional<Phone> get(String phoneId) {
 		logger.info("in Phone Repository.get with phone id=" + phoneId);
-		String fullKey = "Phone:" + phoneId;
+		String fullKey = makeKey(phoneId);
 		Map<Object, Object> phoneHash = stringRedisTemplate.opsForHash().entries(fullKey);
 		logger.info("Full key is " + fullKey + " phoneHash is " + phoneHash);
-		Phone phone = mapper.convertValue(phoneHash, Phone.class);
+		Phone phone = objectMapper.convertValue(phoneHash, Phone.class);
 		logger.info("return phone " + phone.getPhoneNumber() + ":" + phone.getPhoneLabel() + ":" + phone.getCustomerId());
 		return Optional.ofNullable((phone));
 	}
 
-
+    private String makeKey(String phoneId) {
+		return phoneSearchIndexName + ':' + phoneId;
+	}
 }

@@ -4,10 +4,13 @@ import com.jphaugla.domain.Transaction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -19,37 +22,35 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 @Repository
-
+@Slf4j
 public class TransactionRepository{
-	private static final String KEY = "Transaction";
 	@Value("${app.transactionSearchIndexName}")
 	private String transactionSearchIndexName;
 
-	final Logger logger = LoggerFactory.getLogger(TransactionRepository.class);
-	ObjectMapper mapper = new ObjectMapper();
-
 	@Autowired
-	@Qualifier("redisTemplateW1")
-	private RedisTemplate<Object, Object> redisTemplateW1;
+	ObjectMapper objectMapper;
 
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate;
 
 	public TransactionRepository() {
 
-		logger.info("TransactionRepository constructor");
+		log.info("TransactionRepository constructor");
 	}
 
 	public String create(Transaction transaction) {
-		logger.info("entering TransactionReposistory create transaction " + transaction.toString());
+		log.info("entering TransactionReposistory create transaction " + transaction.toString());
 		if (transaction.getInitialDate() == null) {
 			long currentTimeMillis = System.currentTimeMillis();
 			transaction.setInitialDate(Long.toString(currentTimeMillis));
 		}
 
-		Map<Object, Object> transactionHash = mapper.convertValue(transaction, Map.class);
+		Map<Object, Object> transactionHash = objectMapper.convertValue(transaction, Map.class);
+		//  remove null map values
 		while (transactionHash.values().remove(null));
-		stringRedisTemplate.opsForHash().putAll(transactionSearchIndexName + ':' + transaction.getTranId(), transactionHash);
+		String fullKey = makeKey(transaction.getTranId());
+		log.info("full key is " + fullKey);
+		stringRedisTemplate.opsForHash().putAll(fullKey, transactionHash);
 		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);
 		// logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
 		return "Success\n";
@@ -62,13 +63,54 @@ public class TransactionRepository{
 		return "Success\n";
 	}
 
-	public Transaction get(String transactionId) {
-		logger.info("in TransactionRepository.get with transaction id=" + transactionId);
-		String fullKey = "Transaction:" + transactionId;
+	public Transaction get(String tranId) {
+		log.info("in TransactionRepository.get with transaction id=" + tranId);
+		String fullKey = makeKey(tranId);
 		Map<Object, Object> transactionHash = stringRedisTemplate.opsForHash().entries(fullKey);
-		Transaction transaction = mapper.convertValue(transactionHash, Transaction.class);
+		Transaction transaction = objectMapper.convertValue(transactionHash, Transaction.class);
 		return (transaction);
 	}
 
+	public String getAmount(String tranId) {
+		log.info("in TransactionRepository.getAmount with transaction id=" + tranId);
+		String fullKey = makeKey(tranId);
+		String amount = (String) stringRedisTemplate.opsForHash().get(fullKey, "amount");
+		return amount;
+	}
+	public void updateStatus(String tranId, String targetStatus, String timeString) {
+		stringRedisTemplate.opsForHash().put(makeKey(tranId),
+				"status", targetStatus);
+		if (targetStatus.equals("POSTED")) {
+			updateDate(tranId, "postingDate", timeString);
+		} else {
+			updateDate(tranId, "settlementDate", timeString);
+		}
+	}
 
+	public void updateDate(String tranId, String dateField, String timeString) {
+		stringRedisTemplate.opsForHash().put(makeKey(tranId), dateField,
+				timeString);
+	}
+
+	public void addTags(String tranId, String tagDelimitedString) {
+		stringRedisTemplate.opsForHash().put(makeKey(tranId), "transactionTags",
+				tagDelimitedString);
+	}
+	public String getTags(String tranId) {
+		log.info("in getTransactionTagList with transactionID=" + tranId);
+		// hold set of transactions for a tag on an account
+		String transactionKey = makeKey(tranId);
+		String existingTags = (String) stringRedisTemplate.opsForHash().get(transactionKey,
+				"transactionTags");
+		return existingTags;
+	}
+
+	public void addDispute(String tranId, String disputeId) {
+		String transactionKey = makeKey(tranId);
+		stringRedisTemplate.opsForHash().put(transactionKey, "disputeId", disputeId);
+
+	}
+	 public String makeKey(String tranId) {
+		return transactionSearchIndexName + ":" + tranId;
+	}
 }

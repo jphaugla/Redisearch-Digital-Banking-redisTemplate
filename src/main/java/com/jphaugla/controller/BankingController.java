@@ -37,7 +37,7 @@ public class BankingController {
 		bankService.saveSampleCustomer();
 		return "Done";
 	}
-
+//  test send message
 	@GetMapping (value = "/send")
 	public void send() throws ExecutionException, InterruptedException {
 		topicProducer.send("Mensagem de teste enviada ao tópico");
@@ -51,8 +51,9 @@ public class BankingController {
 
 	//  transaction
 	@RequestMapping("/save_transaction")
-	public String saveTransaction() throws ParseException {
-		bankService.saveSampleTransaction();
+	public String saveTransaction(@RequestParam Boolean doKafka) throws ParseException, JsonProcessingException {
+	    logger.info("starting save transaction with doKafka:" + doKafka);
+		bankService.saveSampleTransaction(doKafka);
 		return "Done";
 	}
 
@@ -238,9 +239,27 @@ public class BankingController {
 		return "Done\n";
 	}
 
+	@PostMapping(value = "/postDispute", consumes = "application/json", produces = "application/json")
+	public String postDispute(@RequestBody Dispute dispute ) throws ParseException {
+		bankService.postDispute(dispute);
+		return "Done\n";
+	}
 
+	@PutMapping(value = "/putDisputeChargeBackReason", consumes = "application/json", produces = "application/json")
+	public String putDisputeChargeBackReason(@RequestParam String disputeId, @RequestParam String reasonCode )  {
+		bankService.putDisputeChargeBackReason(disputeId, reasonCode);
+		return "Done\n";
+	}
 
+	@PutMapping(value = "/acceptDispute", consumes = "application/json", produces = "application/json")
+	public String acceptDisputeChargeBack(@RequestParam String disputeId)  {
+		bankService.acceptDisputeChargeBack(disputeId);
+		return "Done\n";
+	}
 
-
-
+	@PutMapping(value = "/resolvedDispute", consumes = "application/json", produces = "application/json")
+	public String resolvedDispute(@RequestParam String disputeId )  {
+		bankService.resolvedDispute(disputeId);
+		return "Done\n";
+	}
 }
