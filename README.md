@@ -28,19 +28,15 @@ In this tutorial, a java spring boot application is run through a jar file to su
  * [Redis Search](https://redis.io/docs/stack/search/)
  * [Redis Insight](https://redis.io/docs/stack/insight/)
  * [spring data for redis github](https://github.com/spring-projects/spring-data-examples/tree/master/redis/repositories)
- * [spring data for redis sample code](https://www.oodlestechnologies.com/blogs/Using-Redis-with-CrudRepository-in-Spring-Boot/)
- * [lettuce tips redis spring boot](https://www.bytepitch.com/blog/redis-integration-spring-boot/)
  * [spring data Reference in domain](https://github.com/spring-projects/spring-data-examples/blob/master/redis/repositories/src/main/java/example/springdata/redis/repositories/Person.java)
- * [spring data reference test code](https://github.com/spring-projects/spring-data-examples/blob/master/redis/repositories/src/test/java/example/springdata/redis/repositories/PersonRepositoryTests.java)
  * [spring async tips](https://dzone.com/articles/effective-advice-on-spring-async-part-1)
- * [brewdis sample application](https://github.com/redis-developer/brewdis)
- * [redis-developer lettucemod](https://github.com/redis-developer/lettucemod)
+ * [swagger-ui with spring](https://www.baeldung.com/spring-rest-openapi-documentation)
 
 
 ## Technical Overview
 
-This github java code uses the lettucemod library for redis modules.  The lettucemod library supports RediSearch, RedisJSON, RedisGears, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
-All of the Spring Java indexes have been removed in this version.  All the crud repository will also be removed in this when it is complete.
+This github java code uses jedis library for redis.  The jedis library supports RediSearch, RedisJSON, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
+All of the Spring Java indexes have been removed in this version.  The crud repository has been removed. 
 Can also use TLS with Spring Boot java lettuce.  Steps are near bottom.
 ### The spring java code
 This is basic spring links
@@ -86,15 +82,15 @@ git clone https://github.com/jphaugla/Redisearch-Digital-Banking.git
 
 ## Execute sample application 
 
-1. Compile the code
+### Compile the code
 ```bash
-mvn package
+mvn clean package
 ```
-2.  run the jar file.   
+###  run the jar file.   
 ```bash
 java -jar target/redis-0.0.1-SNAPSHOT.jar
 ```
-3.  Test the application from a separate terminal window.  This script uses an API call to generate sample banking customers, accounts and transactions.  It uses Spring ASYNC techniques to generate higher load.  A flag chooses between running the transactions pipelined in Redis or in normal non-pipelined method.
+###  Test the application from a separate terminal window.  This script uses an API call to generate sample banking customers, accounts and transactions.  It uses Spring ASYNC techniques to generate higher load.  A flag chooses between running the transactions pipelined in Redis or in normal non-pipelined method.
 ```bash
 source ./scripts/setEnv.sh
 ./scripts/generateData.sh
@@ -102,7 +98,11 @@ source ./scripts/setEnv.sh
 Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this test run is using redisearch 1.0 code base.  Need to rerun this test.
 <a href="" rel="Generate Data Benchmark"><img src="images/Benchmark.png" alt="" /></a>
 
-4.  Investigate the APIs in ./scripts.  Adding the redisearch queries behind each script here also...
+### Investigate the APIs 
+#### Use swagger UI
+* [open api docs](http://localhost:8080/v3/api-docs)
+* [use swagger ui](http://localhost:8080/swagger-ui/index.html)
+#### run bash scripts in ./scripts.  Adding the redisearch queries behind each script here also...
   * addTag.sh - add a tag to a transaction.  Tags allow user to mark  transactions to be in a buckets such as Travel or Food for budgetary tracking purposes
   * deleteCustomer.sh - delete all customers matching a string
   * generateData.sh - simple API to generate default customer, accounts, merchants, phone numbers, emails and transactions
@@ -129,57 +129,7 @@ Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this t
   * startAppservers.sh - start multiple app server instances for load testing
   * testPipeline.sh - test pipelining
   * updateTransactionStatus.sh - generate new transactions to move all transactions from one transaction Status up to the next transaction status. Parameter is target status.  Can choose SETTLED or POSTED.  Will move 100,000 transactions per call
-
-## TLS with spring boot java lettuce
-
-Must set up the server side and verify server side Redis enterprise keys are working.  This guide
-Really just a few steps to make this work and is not in the source code
-[This blog helps with TLS configuration with Redis Enterprise](https://tgrall.github.io/blog/2020/01/02/how-to-use-ssl-slash-tls-with-redis-enterprise/)
-Additional note, instead of using stunnel for testing redis-cli, see command after environment is established
-
-
-* Change environment variables for subsequent scripts
-```bash
-export KEYSTORE_PASSWORD=sillyPassword
-export TRUSTSTORE_PASSWORD=sillyPassword
-```
-
-* generate required keys
-    *  copy in proxy certificate into same ssl folder and name it proxy_cert.pem
-```bash
-cd src/main/resources/ssl
-./generatepems.sh
-# must type in passwords matching the environment variables when prompted below
-./generatekeystore.sh
-./generatetrust.sh
-./importkey.sh
-```
-```bash
-redis-cli -u $REDIS_CONNECTION --tls --cacert src/main/resources/ssl/proxy_cert.pem --cert src/main/resources/ssl/client_cert_app_001.pem --key  src/main/resources/ssl/client_key_app_001.pem -a $REDIS_PASSWORD
-```
-
-* Turn SSL on for the application.  (Two different ways)  in both ways, must set spring.redis.ssl to true
-  * Can change src/main/resources/application.properties to add the key and trust store parameters
-```bash
-spring.redis.ssl=true
-server.ssl.key-store=./src/main/resources/ssl/client-keystore.p12
-server.ssl.key-store-password=${KEYSTORE_PASSWORD}
-server.ssl.trust-store=./src/main/resources/ssl/client-truststore.p12
-server.ssl.trust-store-password=${TRUSTSTORE_PASSWORD}
-```
-or can change the runtime (sample script included)
-```bash
-
-```
-* package and run application
-```bash
-mvn clean package
-java -jar  target/redis-0.0.1-SNAPSHOT.jar
-```
-
-WARNING:  This causes  TLS to be turned on for the application which causes the following chages:
-* port changes from 8080 to 8443
-* must disable the failure on non-certified key in each of the scripts. This format works:
-```bash
-*curl --insecure -I 
-```
+  * putDispute.sh - put the dispute specified in dispute.sh
+  * disputeReasonCode.sh - set the dispute reason code
+  * disputeAccept.sh - accept the dispute
+  * disputeResolved.sh - charge back the dispute
