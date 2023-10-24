@@ -18,8 +18,6 @@ import io.lettuce.core.RedisCommandExecutionException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -765,5 +763,16 @@ public class BankService {
 
 	public void resolvedDispute(String disputeId) {
 		disputeRepository.resolved(disputeId);
+	}
+
+	public Dispute getDispute(String disputeId) {
+		return disputeRepository.get(disputeId);
+	}
+
+	public SearchResult mostRecentTransactions(String account) {
+		log.info("in bs.mostrecentTransactions with account=" + account);
+		String accountString = buildTagQuery("accountNo", account);
+		return search(transactionSearchIndexName, accountString, 0, 20, "postingDate",
+				false);
 	}
 }

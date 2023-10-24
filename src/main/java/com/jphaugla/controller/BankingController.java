@@ -2,7 +2,6 @@ package com.jphaugla.controller;
 
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,13 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.jphaugla.service.BankService;
 import redis.clients.jedis.search.SearchResult;
-import redis.clients.jedis.search.aggr.AggregationResult;
-
 
 
 @RequiredArgsConstructor
@@ -213,7 +209,14 @@ public class BankingController {
 		Transaction transaction = bankService.getTransaction(transactionID);
 		return transaction;
 	}
+	@GetMapping("/mostRecentTransactions")
 
+	public SearchResult mostRecentTransactions
+			(@RequestParam String accountNo)
+			throws ParseException {
+		logger.debug("In mostRecentTransactions accountNo=" + accountNo  );
+		return bankService.mostRecentTransactions(accountNo);
+	}
 
 	@GetMapping("/customer")
 
@@ -262,4 +265,10 @@ public class BankingController {
 		bankService.resolvedDispute(disputeId);
 		return "Done\n";
 	}
+	@GetMapping("/getDispute")
+
+	public Dispute getDispute(@RequestParam String disputeId) {
+		return bankService.getDispute(disputeId);
+	}
+
 }
