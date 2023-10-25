@@ -162,9 +162,23 @@ cd Redisearch-Digital-Banking-redisTemplate/scripts
 ```
 * verify transactions topic is created using kafka control center
   *  if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
-* application will create the kafka topic on first usage of the topic.  Call an API to create the topic.
+  * application will create the kafka topic on first usage of the topic.  
+* Call an API to create the RedisSink using provided script
 ```bash
 ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
 cd Redisearch-Digital-Banking-redisTemplate/scripts
-./saveTransactions.sh
+#  change localhost to the local ip address for the kafka node in the last line.  Verify the redis.uri and redis.password
+./createRedisSink.sh
+./saveTransaction.sh
 ```
+verify data flowed in to redis using redis-cli
+
+* Call an Api to create the cassandra sink using provided script
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+#  change localhost to the local ip address for the kafka node in the last line.  Set the contactPoints to the local IP address for the cassandra node
+./createCassandraSink.sh
+./saveTransaction.sh
+```
+verify data flowed in to cassandra using cqlsh
+
