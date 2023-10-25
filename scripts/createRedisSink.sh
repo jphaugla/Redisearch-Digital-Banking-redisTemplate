@@ -13,7 +13,7 @@ curl -X POST -H "Content-Type: application/json" --data '
     "transforms.Cast.type": "org.apache.kafka.connect.transforms.Cast$Key",
     "transforms.Cast.spec": "string",
     "redis.uri": "redis://redis-12384.int.jph.jphaugla.demo-rlec.redislabs.com:12384",
-    "redis.password": "********",
+    "redis.password": "redis123",
     "redis.type": "HASH",
     "redis.key": "Trans",
     "redis.separator": ":"
