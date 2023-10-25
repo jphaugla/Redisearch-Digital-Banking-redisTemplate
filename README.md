@@ -133,3 +133,38 @@ Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this t
   * disputeReasonCode.sh - set the dispute reason code
   * disputeAccept.sh - accept the dispute
   * disputeResolved.sh - charge back the dispute
+### Running with Kafka
+These direction assume a deployment on azure of cassandra, redis, kafka and an application node has been completed using this [ansible/terraform github](https://github.com/jphaugla/tfmodule-azure-redis-enterprise)
+With this deployed, move forward with this github which is deployed on the application node.
+* Pause the currently running connectors:  datagen-pageviews, cassanddra-sink, and redis-sink-json  using the Kafka Control Center.   This will just remove the noise of a second application running.  
+* Consider cleaning both the redis (use flushdb)  and cassandra databases as well (drop keyspace pageviews)
+* Create transaction table in cassandra using provided script
+```bash
+cd scripts
+#  edit the CQLSH_HOST variable inside the script for the cassandra host pubic IP address
+./createCassandraTrans.sh
+```
+* start the application after logging in to the testernode
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate
+mvn clean package
+# edit scripts/setEnv.sh for current nodes - REDIS_HOST, REDIS_PORT, and KAFKA_HOST must all change to match current environment
+source scripts/setEnv.sh
+java -jar target/redis-0.0.1-SNAPSHOT.jar
+```
+* get a second terminal window to the tester node and write a test message to kafka-this will cause the topic to be created
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+# make sure saveTransaction script says doKafka=true
+./saveTransaction.sh
+```
+* verify transactions topic is created using kafka control center
+  *  if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
+* application will create the kafka topic on first usage of the topic.  Call an API to create the topic.
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+./saveTransactions.sh
+```

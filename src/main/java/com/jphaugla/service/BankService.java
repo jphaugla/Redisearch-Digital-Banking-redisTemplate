@@ -389,7 +389,7 @@ public class BankService {
 		log.info("before save merchant");
 		merchantRepository.create(merchant);
 
-		Transaction transaction = new Transaction("1234", "acct01",
+		Transaction transaction = new Transaction("1234","acct01",
 				"Debit", merchant.getName() + ":" + "acct01", "referenceKeyType",
 				"referenceKeyValue", "323.23", "323.22", "1631",
 				"Test Transaction", Long.toString(init_date.getTime()), Long.toString(settle_date.getTime()),
@@ -514,7 +514,8 @@ public class BankService {
 	private void writeTransactionKafka(Transaction randomTransaction) throws JsonProcessingException {
 		try {
 			String jsonStr = objectMapper.writeValueAsString(randomTransaction);
-			topicProducer.send(jsonStr);
+			String key = randomTransaction.getTranId();
+			topicProducer.send(jsonStr, randomTransaction.getTranId());
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

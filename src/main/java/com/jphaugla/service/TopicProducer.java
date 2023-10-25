@@ -22,8 +22,8 @@ public class TopicProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void send(String message) {
-        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, message);
+    public void send(String message, String key) {
+        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, key, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 logger.info("Sent message=[" + message +

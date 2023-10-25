@@ -36,7 +36,7 @@ public class BankingController {
 //  test send message
 	@GetMapping (value = "/send")
 	public void send() throws ExecutionException, InterruptedException {
-		topicProducer.send("Mensagem de teste enviada ao tópico");
+		topicProducer.send("Mensagem de teste enviada ao tópico", "mensagem");
 	}
 	//  account
 	@RequestMapping("/save_account")
