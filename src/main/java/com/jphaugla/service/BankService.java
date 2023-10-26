@@ -47,7 +47,8 @@ public class BankService {
 	private static BankService bankService = new BankService();
 	@Autowired
 	private AsyncService asyncService;
-
+	@Autowired
+	private CassandraService cassandraService;
 	@Autowired
 	private TopicProducer topicProducer;
 	@Autowired
@@ -304,6 +305,9 @@ public class BankService {
 		optionalTransaction = Optional.ofNullable(transactionRepository.get(transactionID));
 		if (optionalTransaction.isPresent()) {
 			returnTransaction = optionalTransaction.get();
+			log.info("found transaction in redis");
+		} else {
+			cassandraService.getTransaction(transactionID);
 		}
 		return returnTransaction;
 	}
