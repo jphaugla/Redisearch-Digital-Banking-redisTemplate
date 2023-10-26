@@ -37,11 +37,6 @@ public class AsyncService {
     private PhoneRepository phoneRepository;
     @Autowired
     private EmailRepository emailRepository;
-    @Autowired
-    @Qualifier("redisTemplateW1")
-    private RedisTemplate<Object, Object> redisTemplateW1;
-
-    private static final Logger logger = LoggerFactory.getLogger(BankService.class);
 
     @Async("threadPoolTaskExecutor")
     public CompletableFuture<Integer> writeAllTransaction(List<Transaction> transactions) {
@@ -85,8 +80,5 @@ public class AsyncService {
         emailRepository.create(email);
         return CompletableFuture.completedFuture(0);
     }
-
-
-
 
 }
