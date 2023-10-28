@@ -1,18 +1,23 @@
 package com.jphaugla.domain;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 
 
 import java.io.Serializable;
 import java.util.Date;
 @Data
+@Table
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 
+
 public class Transaction implements Serializable {
+    @PrimaryKey
     private String tranId;
     private String accountNo;
     // debit or credit
