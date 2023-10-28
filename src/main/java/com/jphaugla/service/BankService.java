@@ -317,8 +317,10 @@ public class BankService {
 		}
 		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) )
 			return returnTransaction;
-		else
+		else {
+			log.info("cassandra doesn't have it either");
 			return null;
+		}
 	}
 
 	private Transaction cassandraTransactionCopytoTransaction(CassandraTransaction cassandraTransaction) {
