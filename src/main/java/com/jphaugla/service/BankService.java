@@ -309,8 +309,38 @@ public class BankService {
 		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) ) {
 			log.info("found transaction in redis");
 		} else {
-			cassandraTransRepository.findById(transactionID);
+			log.info("transaction not found in redis, looking in cassandra");
+			Optional<CassandraTransaction> optionalTransaction = cassandraTransRepository.findById(transactionID);
+			CassandraTransaction cassandraTransaction = optionalTransaction.get();
+			if (cassandraTransaction.getTranid() == null) {
+				log.info("cassandra doesn't have the data either");
+			} else {
+				returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
+			}
 		}
+		return returnTransaction;
+	}
+
+	private Transaction cassandraTransactionCopytoTransaction(CassandraTransaction cassandraTransaction) {
+		Transaction returnTransaction= new Transaction();
+		returnTransaction.setTranId(cassandraTransaction.getTranid());
+		returnTransaction.setAmount(cassandraTransaction.getAmount());
+		returnTransaction.setDescription(cassandraTransaction.getDescription());
+		returnTransaction.setLocation(cassandraTransaction.getLocation());
+		returnTransaction.setTransactionTags(cassandraTransaction.getTransactiontags());
+		returnTransaction.setAccountNo(cassandraTransaction.getAccountno());
+		returnTransaction.setAmountType(cassandraTransaction.getAmounttype());
+		returnTransaction.setDisputeId(cassandraTransaction.getDisputeid());
+		returnTransaction.setInitialDate(cassandraTransaction.getInitialdate());
+		returnTransaction.setMerchant(cassandraTransaction.getMerchant());
+		returnTransaction.setOriginalAmount(cassandraTransaction.getOriginalamount());
+		returnTransaction.setPostingDate(cassandraTransaction.getPostingdate());
+		returnTransaction.setReferenceKeyType(cassandraTransaction.getReferencekeytype());
+		returnTransaction.setReferenceKeyValue(cassandraTransaction.getReferencekeyValue());
+		returnTransaction.setSettlementDate(cassandraTransaction.getSettlementdate());
+		returnTransaction.setStatus(cassandraTransaction.getStatus());
+		returnTransaction.setTransactionReturn(cassandraTransaction.getTransactionreturn());
+		returnTransaction.setTranCd(cassandraTransaction.getTrancd());
 		return returnTransaction;
 	}
 

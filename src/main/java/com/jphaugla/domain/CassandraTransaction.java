@@ -13,7 +13,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 
-
 public class CassandraTransaction implements Serializable {
     @PrimaryKey
     private String tranid;
