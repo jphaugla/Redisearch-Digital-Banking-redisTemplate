@@ -300,25 +300,25 @@ public class BankService {
 	//
 
 	public Transaction getTransaction(String transactionID) {
-		// Optional<Transaction> optionalTransaction;
-		// Transaction returnTransaction = null;
-		// optionalTransaction = Optional.ofNullable(transactionRepository.get(transactionID));
-		// if (optionalTransaction.isPresent()) {
-		// 	returnTransaction = optionalTransaction.get();
+
 		Transaction returnTransaction = transactionRepository.get(transactionID);
 		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) ) {
 			log.info("found transaction in redis");
 		} else {
 			log.info("transaction not found in redis, looking in cassandra");
 			Optional<CassandraTransaction> optionalTransaction = cassandraTransRepository.findById(transactionID);
-			CassandraTransaction cassandraTransaction = optionalTransaction.get();
-			if (cassandraTransaction.getTranid() == null) {
-				log.info("cassandra doesn't have the data either");
-			} else {
-				returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
+			if (optionalTransaction.isPresent()) {
+				CassandraTransaction cassandraTransaction = optionalTransaction.get();
+				if (cassandraTransaction.getTranid() != null) {
+					log.info("cassandra has the data ");
+					returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
+				}
 			}
 		}
-		return returnTransaction;
+		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) )
+			return returnTransaction;
+		else
+			return null;
 	}
 
 	private Transaction cassandraTransactionCopytoTransaction(CassandraTransaction cassandraTransaction) {
