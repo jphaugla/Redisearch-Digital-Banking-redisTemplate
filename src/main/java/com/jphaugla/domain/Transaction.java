@@ -8,7 +8,6 @@ import org.springframework.data.cassandra.core.mapping.Table;
 import java.io.Serializable;
 import java.util.Date;
 @Data
-@Table
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +16,6 @@ import java.util.Date;
 
 
 public class Transaction implements Serializable {
-    @PrimaryKey
     private String tranId;
     private String accountNo;
     // debit or credit
