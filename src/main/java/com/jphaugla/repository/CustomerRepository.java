@@ -24,46 +24,46 @@ import org.springframework.stereotype.Repository;
 public class CustomerRepository{
 
 
-	final Logger logger = LoggerFactory.getLogger(CustomerRepository.class);
-	@Autowired
-	ObjectMapper objectMapper;
+    final Logger logger = LoggerFactory.getLogger(CustomerRepository.class);
+    @Autowired
+    ObjectMapper objectMapper;
 
-	@Value("${app.customerSearchIndexName}")
-	private String customerSearchIndexName;
+    @Value("${app.customerSearchIndexName}")
+    private String customerSearchIndexName;
 
-	@Autowired
-	private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
-	public CustomerRepository() {
+    public CustomerRepository() {
 
-		logger.info("CustomerRepository constructor");
-	}
+        logger.info("CustomerRepository constructor");
+    }
 
-	public String create(Customer customer) {
-		if (customer.getCreatedDatetime() == null) {
-			Long currentTimeMillis = System.currentTimeMillis();
-			customer.setCreatedDatetime(Long.toString(currentTimeMillis));
-			customer.setLastUpdated(Long.toString(currentTimeMillis));
-		}
+    public String create(Customer customer) {
+        if (customer.getCreatedDatetime() == null) {
+            Long currentTimeMillis = System.currentTimeMillis();
+            customer.setCreatedDatetime(Long.toString(currentTimeMillis));
+            customer.setLastUpdated(Long.toString(currentTimeMillis));
+        }
 
-		Map<Object, Object> customerHash = objectMapper.convertValue(customer, Map.class);
-		customerHash.values().removeIf(Objects::isNull);
+        Map<Object, Object> customerHash = objectMapper.convertValue(customer, Map.class);
+        customerHash.values().removeIf(Objects::isNull);
 
-		stringRedisTemplate.opsForHash().putAll(makeKey(customer.getCustomerId()), customerHash);
-		// redisTemplate.opsForHash().putAll("Customer:" + customer.getCustomerId(), customerHash);
-		// logger.info(String.format("Customer with ID %s saved", customer.getCustomerId()));
-		return "Success\n";
-	}
+        stringRedisTemplate.opsForHash().putAll(makeKey(customer.getCustomerId()), customerHash);
+        // redisTemplate.opsForHash().putAll("Customer:" + customer.getCustomerId(), customerHash);
+        // logger.info(String.format("Customer with ID %s saved", customer.getCustomerId()));
+        return "Success\n";
+    }
 
-	public Customer get(String customerId) {
-		// logger.info("in CustomerRepository.get with customer id=" + customerId);
-		String fullKey = makeKey(customerId);
-		Map<Object, Object> customerHash = stringRedisTemplate.opsForHash().entries(fullKey);
-		Customer customer = objectMapper.convertValue(customerHash, Customer.class);
-		return (customer);
-	}
-	private String makeKey(String customerId) {
-		return customerSearchIndexName + ':' + customerId;
-	}
+    public Customer get(String customerId) {
+        // logger.info("in CustomerRepository.get with customer id=" + customerId);
+        String fullKey = makeKey(customerId);
+        Map<Object, Object> customerHash = stringRedisTemplate.opsForHash().entries(fullKey);
+        Customer customer = objectMapper.convertValue(customerHash, Customer.class);
+        return (customer);
+    }
+    private String makeKey(String customerId) {
+        return customerSearchIndexName + ':' + customerId;
+    }
 
 }

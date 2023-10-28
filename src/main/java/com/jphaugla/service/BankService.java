@@ -48,11 +48,9 @@ public class BankService {
 	@Autowired
 	private AsyncService asyncService;
 	@Autowired
-	private CassandraService cassandraService;
-	@Autowired
 	private TopicProducer topicProducer;
 	@Autowired
-	private CustomerRepository customerRepository;
+	private CassandraTransRepository cassandraTransRepository;
 	@Autowired
 	private AccountRepository accountRepository;
 	@Autowired
@@ -67,6 +65,8 @@ public class BankService {
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private DisputeRepository disputeRepository;
+	@Autowired
+	private CustomerRepository customerRepository;
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 	@Autowired
@@ -300,14 +300,16 @@ public class BankService {
 	//
 
 	public Transaction getTransaction(String transactionID) {
-		Optional<Transaction> optionalTransaction;
-		Transaction returnTransaction = null;
-		optionalTransaction = Optional.ofNullable(transactionRepository.get(transactionID));
-		if (optionalTransaction.isPresent()) {
-			returnTransaction = optionalTransaction.get();
+		// Optional<Transaction> optionalTransaction;
+		// Transaction returnTransaction = null;
+		// optionalTransaction = Optional.ofNullable(transactionRepository.get(transactionID));
+		// if (optionalTransaction.isPresent()) {
+		// 	returnTransaction = optionalTransaction.get();
+		Transaction returnTransaction = transactionRepository.get(transactionID);
+		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) ) {
 			log.info("found transaction in redis");
 		} else {
-			cassandraService.getTransaction(transactionID);
+			cassandraTransRepository.findById(transactionID);
 		}
 		return returnTransaction;
 	}
