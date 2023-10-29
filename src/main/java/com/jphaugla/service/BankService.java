@@ -312,6 +312,8 @@ public class BankService {
 				if (cassandraTransaction.getTranid() != null) {
 					log.info("cassandra has the data ");
 					returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
+					// write it back to redis
+					writeTransaction(returnTransaction, true);
 				}
 			}
 		}
@@ -384,9 +386,9 @@ public class BankService {
 
 
 	//   writeTransaction using crud without future
-	private void writeTransaction(Transaction transaction) {
+	private void writeTransaction(Transaction transaction, boolean doExpire) {
 		// log.info("writing a transaction " + transaction);
-		transactionRepository.create(transaction);
+		transactionRepository.create(transaction, doExpire);
 	}
 
 	// writeTransaction using crud with Future
@@ -436,7 +438,7 @@ public class BankService {
 		if (doKafka) {
 			writeTransactionKafka(transaction);
 		} else {
-			writeTransaction(transaction);
+			writeTransaction(transaction, false);
 		}
 	}
 

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +54,13 @@ public class TransactionRepository{
 		stringRedisTemplate.opsForHash().putAll(fullKey, transactionHash);
 		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);
 		// logger.info(String.format("Transaction with ID %s saved", transaction.getTranId()));
-		return "Success\n";
+		return fullKey;
+	}
+
+	public String create (Transaction transaction, Boolean doExpire) {
+		String returnKey = create(transaction);
+		stringRedisTemplate.expire(returnKey, Duration.ofDays(2));
+		return returnKey;
 	}
 
 	public String createAll(List<Transaction> transactionList) {
