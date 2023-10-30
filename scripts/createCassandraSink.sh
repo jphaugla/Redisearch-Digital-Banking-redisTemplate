@@ -2,7 +2,7 @@ curl -X POST -H "Content-Type: application/json" --data '
 {
   "name": "cassandra-sink-trans",
   "config": {
-    "topic.transactions.banking.cassandratransaction.mapping": "tranId=value.tranId, accountNo=value.accountNo, amountType=value.amountType, merchant=value.merchant, referenceKeyType=value.referenceKeyType, referenceKeyValue=value.referenceKeyValue, originalAmount=value.originalAmount, amount=value.amount, tranCd=value.tranCd, description=value.description, initialDate=value.initialDate, settlementDate=value.settlementDate, postingDate=value.postingDate, status=value.status, disputeId=value.disputeId, transactionReturn=value.transactionReturn, location=value.location, transactionTags=value.transactionTags",
+    "topic.transactions.banking.cassandratransaction.mapping": "tranid=value.tranid, accountno=value.accountno, amounttype=value.amounttype, merchant=value.merchant, referencekeytype=value.referencekeytype, referencekeyvalue=value.referencekeyvalue, originalamount=value.originalamount, amount=value.amount, trancd=value.trancd, description=value.description, initialdate=value.initialdate, settlementdate=value.settlementdate, postingdate=value.postingdate, status=value.status, disputeid=value.disputeid, transactionreturn=value.transactionreturn, location=value.location, transactiontags=value.transactiontags",
     "key.converter.schemas.enable": "false",
     "value.converter.schemas.enable": "false",
     "name": "cassandra-sink-trans",

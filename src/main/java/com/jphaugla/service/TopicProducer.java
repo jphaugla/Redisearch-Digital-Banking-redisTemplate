@@ -26,8 +26,7 @@ public class TopicProducer {
         CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, key, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                logger.info("Sent message=[" + message +
-                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+              //  logger.info("Sent message=[" + message + "] with offset=[" + result.getRecordMetadata().offset() + "]");
             } else {
                 logger.info("Unable to send message=[" +
                         message + "] due to : " + ex.getMessage());
