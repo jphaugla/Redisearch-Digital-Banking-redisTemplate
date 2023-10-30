@@ -6,10 +6,11 @@ services:
     image: 'cassandra:latest'
     environment:
       - CASSANDRA_CLUSTER_NAME=test
-      - CASSANDRA_SEEDS=172.18.0.10
+      - CASSANDRA_SEEDS=cassandra1
 #  this is actually hardcoded with SIMPLE Snitch
       - CASSANDRA_DC=datacenter1
       - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra1
     container_name: cassandra1
     hostname: cassandra1
     ports:
