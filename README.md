@@ -186,7 +186,4 @@ Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this t
   * disputeReasonCode.sh - set the dispute reason code
   * disputeAccept.sh - accept the dispute
   * disputeResolved.sh - charge back the dispute
-### Running with Kafka
-These direction assume a deployment on azure of cassandra, redis, kafka and an application node has been completed using this [ansible/terraform github](https://github.com/jphaugla/tfmodule-azure-redis-enterprise)
-With this deployed, move forward with this github which is deployed on the application node.
 
