@@ -27,17 +27,19 @@ In this tutorial, a java spring boot application is run through a jar file to su
  * [Redis Stack](https://redis.com/blog/introducing-redis-stack/)
  * [Redis Search](https://redis.io/docs/stack/search/)
  * [Redis Insight](https://redis.io/docs/stack/insight/)
- * [spring data for redis github](https://github.com/spring-projects/spring-data-examples/tree/master/redis/repositories)
+ * [Spring Data for Redis github](https://github.com/spring-projects/spring-data-examples/tree/master/redis/repositories)
+ * [Spring Data for Cassandra](https://www.baeldung.com/spring-data-cassandra-tutorial)
+ * [Spring Data for Kafka](https://www.baeldung.com/spring-kafka)
  * [spring data Reference in domain](https://github.com/spring-projects/spring-data-examples/blob/master/redis/repositories/src/main/java/example/springdata/redis/repositories/Person.java)
  * [spring async tips](https://dzone.com/articles/effective-advice-on-spring-async-part-1)
  * [swagger-ui with spring](https://www.baeldung.com/spring-rest-openapi-documentation)
+ * 
 
 
 ## Technical Overview
 
 This github java code uses jedis library for redis.  The jedis library supports RediSearch, RedisJSON, and RedisTimeSeries.  The original github only used spring java without redisearch.  That repository is still intact at [this github location](https://github.com/jphaugla/Redis-Digital-Banking).  Another subsequent version uses crud repository and search at [this github location](https://github.com/jphaugla/Redisearch-Digital-Banking)
 All of the Spring Java indexes have been removed in this version.  The crud repository has been removed. 
-Can also use TLS with Spring Boot java lettuce.  Steps are near bottom.
 ### The spring java code
 This is basic spring links
 * [Spring Redis](https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis.repositories.indexes) 
@@ -46,39 +48,96 @@ This is basic spring links
 * *controller*-http API call interfaces
 * *data*-code to generate POC type of customer, account, and transaction code
 * *domain*-has each of the java objects with their columns.  Enables all the getter/setter methods
-* *repository*-has CRUD repository definitions.  With transition to redisearch 2.0, not used as heavily as previously.  This is where the redistemplate code is added if crud repository is no longer used.
-* *service*-asyncservice and bankservice doing the interaction with redis
+* *repository*-has repository definitions.  With transition to redisearch 2.0, not used as heavily as previously.  This is where the redistemplate code is added if crud repository is no longer used.  Cassandra transaction repository is also here.
+* *service*-asyncservice, topicproducer (kafka)  and bankservice doing the interaction with redis
 ### 
 The java code demonstrates common API actions with the data layer in REDIS.  The java spring Boot framework minimizes the amount of code to build and maintain this solution.  Maven is used to build the java code and the code is deployed to the tomcat server.
 
 ### Data Structures in use
 <a href="" rel="Tables Structures Used"><img src="images/Tables.png" alt="" /></a>
 
-## Getting Started using Docker desktop
-1. Prepare Docker environment-see the Prerequisites section above...
-2. Pull this github into a directory
+## Using Docker for non-application components
+This option uses docker to support all of the non-application components (kafka, cassandra, redis) with the java application running on the local mac.
+* Prepare Docker environment-see the Prerequisites section above...
+* Pull this github into a directory
 ```bash
 git clone https://github.com/jphaugla/Redisearch-Digital-Banking.git
 ```
-3. Refer to the notes for redis Docker images used but don't get too bogged down as docker compose handles everything except for a few admin steps on tomcat.
+* Refer to the notes for redis Docker images used but don't get too bogged down as docker compose handles everything except for a few admin steps on tomcat.
  * [Redis stack docker instructions](https://redis.io/docs/stack/get-started/install/docker/)
-4. Open terminal and change to the github home where you will see the docker-compose.yml file, then: 
+* Open terminal and change to the github home where you will see the docker-compose.yml file, then: 
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose-kafka.yml -f docker-compose.yml -f docker-compose-cassandra.yml up -d
+```
+## Deploying java application on local mac with Kafka non-application components
+* ensure maven and java are deployed on the local machine
+  * have been running with java 17 or java 18 but other versions should work as well
+  * have been runing with 3.9.4 and 3.9.5
+* Set up the environment and run the java application locally
+  * edit the [environment file](scripts/setEnv.sh) to use localhost for non-application components
+  * source this environment file
+  * run the application
+```bash
+source  scripts/setEnv.sh
+java -jar target/redis-0.0.1-SNAPSHOT.jar
 ```
 
-## Getting Started without Docker on ubuntu
+## Using terraform on azure for all components
+* Use [this github](https://github.com/jphaugla/tfmodule-azure-redis-enterprise)  to deploy all of the components (including the application)
+* Check the [readme](https://github.com/jphaugla/tfmodule-azure-redis-enterprise/README.md) for the details on deploying this github including the cloning the github and working with Azure.  Completely deploy the terraform github for all deployments.  This will also deploy [this github](https://github.com/jphaugla/Redisearch-Digital-Banking-redisTemplate) inside the tester node.  The later application deployment instructions will be deployed within the tester node using ssh
+* maven and java will be installed by the ansible jobs for the tester node
+* the ip and dns information is shared in a [temp directory](https://github.com/jphaugla/tfmodule-azure-redis-enterprise/provisioners/temp) within the terraform/ansible repository.  Go to the files here to see private (internal) and public (external) kafka node, cassandra node and testinnode IP addresses.  The redis internal and external database connection dns names are also available.  These dns names will also give an internal and external redis enterprise node IP.
+* log into the tester node using the testernode IP and the ssh key defined in test/main.tf and go to github home
+```bash
+ssh -i <azure key> redislabs@<testerIP>
+cd Redisearch-Digital-Banking-redisTemplate
+```
+* edit the [environment file](scripts/setEnv.sh)  using only the internal connection addresses.  NOTE: kafka will only connect from local azure IP addresses and not any public IP addresses.  Using public and private Kafka addresses is possible but not configured currently
+* These steps can all be done from client machine local browser using the kafka node public IP address and port 9021.  [http://172.172.133.201:9021/](http://172.172.133.201:9021/) From this home screen, pause the currently running connectors:  datagen-pageviews, cassanddra-sink, and redis-sink-json  using the Kafka Control Center.   This will just remove the noise of a second application running.  
+* Consider cleaning both the redis (use flushdb)  and cassandra databases as well (drop keyspace pageviews)
+* Create transaction table in cassandra using provided script
+```bash
+cd scripts
+#  edit the CQLSH_HOST variable inside the script for the cassandra host pubic IP address
+./createCassandraTrans.sh
+```
+* start the application after logging in to the testernode
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate
+mvn clean package
+# edit scripts/setEnv.sh for current nodes - REDIS_HOST, REDIS_PORT, and KAFKA_HOST must all change to match current environment.  *IMPORTANT* only use private/internal IP addresses-DO NOT USE *localhost*.  Additional note, redis password is different in local docker version and in ansible created version-verify redis password!
+source scripts/setEnv.sh
+java -jar target/redis-0.0.1-SNAPSHOT.jar
+```
+* get a second terminal window to the tester node and write a test message to kafka-this will cause the topic to be created.  Name can be changed in [application.properties](src/main/resources/application.properites) but default topic name is *transactions*
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+# make sure saveTransaction script says doKafka=true
+./saveTransaction.sh
+```
+* verify transactions topic is created using kafka control center
+  *  if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
+  * application will create the kafka topic on first usage of the topic.  
+* Call kafka API to create the RedisSink using provided script.  DO THIS FROM your localMaC
+```bash
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+#  change localhost to the external/public  ip address for the kafka node in the last line. Make sure this is the public kafka IP and not the private  Verify the redis.uri and redis.password.
+./createRedisSink.sh
+./saveTransaction.sh
+```
+verify data flowed in to redis using redis-cli
 
-1. Install maven and java
-```bash
-sudo apt-get install maven
-sudo apt-get install default-jdk
+* Call an Api to create the cassandra sink using provided script
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+cd Redisearch-Digital-Banking-redisTemplate/scripts
+#  change localhost to the local ip address for the kafka node in the last line.  Set the contactPoints to the local IP address for the cassandra node. 
+./createCassandraSink.sh
+./saveTransaction.sh
 ```
-1. Pull this github into a directory
-```bash
-git clone https://github.com/jphaugla/Redisearch-Digital-Banking.git
-```
-1. edit ./src/main/resources/application.properties to change the redis host and the redis port number 
+verify data flowed in to cassandra using cqlsh
 
 ## Execute sample application 
 
@@ -136,49 +195,4 @@ Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this t
 ### Running with Kafka
 These direction assume a deployment on azure of cassandra, redis, kafka and an application node has been completed using this [ansible/terraform github](https://github.com/jphaugla/tfmodule-azure-redis-enterprise)
 With this deployed, move forward with this github which is deployed on the application node.
-* Pause the currently running connectors:  datagen-pageviews, cassanddra-sink, and redis-sink-json  using the Kafka Control Center.   This will just remove the noise of a second application running.  
-* Consider cleaning both the redis (use flushdb)  and cassandra databases as well (drop keyspace pageviews)
-* Create transaction table in cassandra using provided script
-```bash
-cd scripts
-#  edit the CQLSH_HOST variable inside the script for the cassandra host pubic IP address
-./createCassandraTrans.sh
-```
-* start the application after logging in to the testernode
-```bash
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
-cd Redisearch-Digital-Banking-redisTemplate
-mvn clean package
-# edit scripts/setEnv.sh for current nodes - REDIS_HOST, REDIS_PORT, and KAFKA_HOST must all change to match current environment
-source scripts/setEnv.sh
-java -jar target/redis-0.0.1-SNAPSHOT.jar
-```
-* get a second terminal window to the tester node and write a test message to kafka-this will cause the topic to be created
-```bash
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
-cd Redisearch-Digital-Banking-redisTemplate/scripts
-# make sure saveTransaction script says doKafka=true
-./saveTransaction.sh
-```
-* verify transactions topic is created using kafka control center
-  *  if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
-  * application will create the kafka topic on first usage of the topic.  
-* Call an API to create the RedisSink using provided script
-```bash
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
-cd Redisearch-Digital-Banking-redisTemplate/scripts
-#  change localhost to the local ip address for the kafka node in the last line.  Verify the redis.uri and redis.password
-./createRedisSink.sh
-./saveTransaction.sh
-```
-verify data flowed in to redis using redis-cli
-
-* Call an Api to create the cassandra sink using provided script
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
-cd Redisearch-Digital-Banking-redisTemplate/scripts
-#  change localhost to the local ip address for the kafka node in the last line.  Set the contactPoints to the local IP address for the cassandra node
-./createCassandraSink.sh
-./saveTransaction.sh
-```
-verify data flowed in to cassandra using cqlsh
 

@@ -96,20 +96,20 @@ public class CreateIndexes implements CommandLineRunner {
     tryIndex(client, phoneSearchIndexName, phoneIndexSchema);
 
     Schema transactionIndexSchema = new Schema()
-            .addField(new Schema.Field(FieldName.of("accountNo").as("accountNo"), Schema.FieldType.TAG))
-       //     .addField(new Schema.Field(FieldName.of("amountType").as("amountType"), Schema.FieldType.TAG))
+            .addField(new Schema.Field(FieldName.of("accountno").as("accountno"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("amounttype").as("amounttype"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("merchant").as("merchant"), Schema.FieldType.TAG))
             .addField(new Schema.Field(FieldName.of("status").as("status"), Schema.FieldType.TAG))
        //     .addField(new Schema.Field(FieldName.of("description").as("description"), Schema.FieldType.TAG))
-       //     .addField(new Schema.Field(FieldName.of("referenceKeyType").as("referenceKeyType"), Schema.FieldType.TAG))
-       //     .addField(new Schema.Field(FieldName.of("referenceValue").as("referenceValue"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("tranCd").as("tranCd"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("referencekeytype").as("referencekeytype"), Schema.FieldType.TAG))
+       //     .addField(new Schema.Field(FieldName.of("referencevalue").as("referencevalue"), Schema.FieldType.TAG))
+            .addField(new Schema.Field(FieldName.of("trancd").as("trancd"), Schema.FieldType.TAG))
         //    .addField(new Schema.Field(FieldName.of("location").as("location"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("transactionReturn").as("transactionReturn"), Schema.FieldType.TAG))
-            .addField(new Schema.Field(FieldName.of("initialDate").as("initialDate"), Schema.FieldType.NUMERIC))
-            .addField(new Schema.Field(FieldName.of( "settlementDate").as("settlementDate"), Schema.FieldType.NUMERIC))
-            .addField(new Schema.Field(FieldName.of( "postingDate").as("postingDate"), Schema.FieldType.NUMERIC))
-            .addField(new Schema.Field(FieldName.of("transactionTags").as("transactionTags"), Schema.FieldType.TAG))
+            .addField(new Schema.Field(FieldName.of("transactionreturn").as("transactionreturn"), Schema.FieldType.TAG))
+            .addField(new Schema.Field(FieldName.of("initialdate").as("initialdate"), Schema.FieldType.NUMERIC))
+            .addField(new Schema.Field(FieldName.of( "settlementdate").as("settlementdate"), Schema.FieldType.NUMERIC))
+            .addField(new Schema.Field(FieldName.of( "postingdate").as("postingdate"), Schema.FieldType.NUMERIC))
+            .addField(new Schema.Field(FieldName.of("transactiontags").as("transactiontags"), Schema.FieldType.TAG))
             ;
     tryIndex(client, transactionSearchIndexName, transactionIndexSchema);
 

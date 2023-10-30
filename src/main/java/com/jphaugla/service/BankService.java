@@ -302,51 +302,53 @@ public class BankService {
 	public Transaction getTransaction(String transactionID) {
 
 		Transaction returnTransaction = transactionRepository.get(transactionID);
-		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) ) {
+		if ((returnTransaction != null) && (returnTransaction.getTranid() != null) ) {
 			log.info("found transaction in redis");
 		} else {
 			log.info("transaction not found in redis, looking in cassandra");
-			Optional<CassandraTransaction> optionalTransaction = cassandraTransRepository.findById(transactionID);
+			Optional<Transaction> optionalTransaction = cassandraTransRepository.findById(transactionID);
 			if (optionalTransaction.isPresent()) {
-				CassandraTransaction cassandraTransaction = optionalTransaction.get();
+				Transaction cassandraTransaction = optionalTransaction.get();
 				if (cassandraTransaction.getTranid() != null) {
 					log.info("cassandra has the data ");
-					returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
+					// returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
 					// write it back to redis
 					writeTransaction(returnTransaction, true);
 				}
 			}
 		}
-		if ((returnTransaction != null) && (returnTransaction.getTranId() != null) )
+		if ((returnTransaction != null) && (returnTransaction.getTranid() != null) )
 			return returnTransaction;
 		else {
 			log.info("cassandra doesn't have it either");
 			return null;
 		}
 	}
+/*
 
 	private Transaction cassandraTransactionCopytoTransaction(CassandraTransaction cassandraTransaction) {
 		Transaction returnTransaction= new Transaction();
-		returnTransaction.setTranId(cassandraTransaction.getTranid());
+		returnTransaction.setTranid(cassandraTransaction.getTranid());
 		returnTransaction.setAmount(cassandraTransaction.getAmount());
 		returnTransaction.setDescription(cassandraTransaction.getDescription());
 		returnTransaction.setLocation(cassandraTransaction.getLocation());
 		returnTransaction.setTransactionTags(cassandraTransaction.getTransactiontags());
-		returnTransaction.setAccountNo(cassandraTransaction.getAccountno());
-		returnTransaction.setAmountType(cassandraTransaction.getAmounttype());
+		returnTransaction.setAccountno(cassandraTransaction.getAccountno());
+		returnTransaction.setAmounttype(cassandraTransaction.getAmounttype());
 		returnTransaction.setDisputeId(cassandraTransaction.getDisputeid());
 		returnTransaction.setInitialDate(cassandraTransaction.getInitialdate());
 		returnTransaction.setMerchant(cassandraTransaction.getMerchant());
-		returnTransaction.setOriginalAmount(cassandraTransaction.getOriginalamount());
+		returnTransaction.setOriginalamount(cassandraTransaction.getOriginalamount());
 		returnTransaction.setPostingDate(cassandraTransaction.getPostingdate());
-		returnTransaction.setReferenceKeyType(cassandraTransaction.getReferencekeytype());
-		returnTransaction.setReferenceKeyValue(cassandraTransaction.getReferencekeyValue());
+		returnTransaction.setReferencekeytype(cassandraTransaction.getReferencekeytype());
+		returnTransaction.setReferencekeyvalue(cassandraTransaction.getReferencekeyValue());
 		returnTransaction.setSettlementDate(cassandraTransaction.getSettlementdate());
 		returnTransaction.setStatus(cassandraTransaction.getStatus());
 		returnTransaction.setTransactionReturn(cassandraTransaction.getTransactionreturn());
-		returnTransaction.setTranCd(cassandraTransaction.getTrancd());
+		returnTransaction.setTrancd(cassandraTransaction.getTrancd());
 		return returnTransaction;
 	}
+*/
 
 	private List<String> getTransactionByStatus(String transactionStatus) throws ExecutionException, InterruptedException {
 		String queryString = buildTagQuery("status", transactionStatus);
@@ -554,8 +556,8 @@ public class BankService {
 	private void writeTransactionKafka(Transaction randomTransaction) throws JsonProcessingException {
 		try {
 			String jsonStr = objectMapper.writeValueAsString(randomTransaction);
-			String key = randomTransaction.getTranId();
-			topicProducer.send(jsonStr, randomTransaction.getTranId());
+			String key = randomTransaction.getTranid();
+			topicProducer.send(jsonStr, randomTransaction.getTranid());
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

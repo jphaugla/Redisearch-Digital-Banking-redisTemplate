@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BankGenerator {
-	private static final Logger logger = LoggerFactory.getLogger(BankGenerator.class);
-
 	// private static final Logger logger = LoggerFactory.getLogger(BankGenerator.class);
 	private static final int BASE = 1000000;
 	private static final int DAY_MILLIS = 1000 * 60 *60 * 24;
@@ -206,43 +204,43 @@ public class BankGenerator {
 
 		Transaction transaction = new Transaction();
 		createItemsAndAmount(noOfItems, transaction);
-		transaction.setAccountNo(account.getAccountNo());
+		transaction.setAccountno(account.getAccountNo());
 		// String tran_id = "{" + account.getAccountNo() + "}" + idx.toString() + key_suffix;
 		String tran_id = idx.toString() + key_suffix;
-		transaction.setTranId(tran_id);
+		transaction.setTranid(tran_id);
         String transactionStat = transactionStatus[randomLocation];
         transaction.setStatus(transactionStat);
         if(transactionStat == "POSTED") {
-        	transaction.setPostingDate(Long.toString(aNewDate.getTime()));
-        	transaction.setSettlementDate(Long.toString(date_minus_one.getTime()));
-        	transaction.setInitialDate(Long.toString(date_minus_two.getTime()));
+        	transaction.setPostingdate(Long.toString(aNewDate.getTime()));
+        	transaction.setSettlementdate(Long.toString(date_minus_one.getTime()));
+        	transaction.setInitialdate(Long.toString(date_minus_two.getTime()));
 		} else if (transactionStat == "SETTLED") {
-			transaction.setSettlementDate(Long.toString(aNewDate.getTime()));
-			transaction.setInitialDate(Long.toString(date_minus_one.getTime()));
-			transaction.setPostingDate(Long.toString(oldDate.getTime()));
+			transaction.setSettlementdate(Long.toString(aNewDate.getTime()));
+			transaction.setInitialdate(Long.toString(date_minus_one.getTime()));
+			transaction.setPostingdate(Long.toString(oldDate.getTime()));
 		} else {
-			transaction.setInitialDate(Long.toString(aNewDate.getTime()));
-			transaction.setPostingDate(Long.toString(oldDate.getTime()));
-			transaction.setSettlementDate(Long.toString(oldDate.getTime()));
+			transaction.setInitialdate(Long.toString(aNewDate.getTime()));
+			transaction.setPostingdate(Long.toString(oldDate.getTime()));
+			transaction.setSettlementdate(Long.toString(oldDate.getTime()));
 		}
 		transaction.setLocation(location);
 		if(randomLocation<5) {
-            transaction.setAmountType("Debit");
+            transaction.setAmounttype("Debit");
         }
         else{
-            transaction.setAmountType("Credit");
+            transaction.setAmounttype("Credit");
         }
         transaction.setMerchant(merchants.get(randomLocation).getName());
 
-        transaction.setReferenceKeyType("reftype");
-        transaction.setReferenceKeyValue("thisRef");
+        transaction.setReferencekeytype("reftype");
+        transaction.setReferencekeyvalue("thisRef");
 
-        transaction.setTranCd(issuersCD[randomLocation]);
+        transaction.setTrancd(issuersCD[randomLocation]);
         transaction.setDescription("description" + issuersCD[randomLocation] + genderList[randomLocation/3 + 1]);
         if(randomLocation==8) {
-        	transaction.setTransactionReturn(transactionReturns.get(0).getReasonCode());
+        	transaction.setTransactionreturn(transactionReturns.get(0).getReasonCode());
 		} else if (randomLocation == 13) {
-			transaction.setTransactionReturn(transactionReturns.get(1).getReasonCode());
+			transaction.setTransactionreturn(transactionReturns.get(1).getReasonCode());
 		}
         return transaction;
 	}
@@ -264,7 +262,7 @@ public class BankGenerator {
 			totalAmount += amount;
 		}
 		transaction.setAmount(String.valueOf(totalAmount));
-        transaction.setOriginalAmount(String.valueOf(totalAmount));
+        transaction.setOriginalamount(String.valueOf(totalAmount));
 	}
 
 

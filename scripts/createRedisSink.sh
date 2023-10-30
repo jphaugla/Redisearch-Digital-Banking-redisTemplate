@@ -12,11 +12,11 @@ curl -X POST -H "Content-Type: application/json" --data '
     "topics": "transactions",
     "transforms.Cast.type": "org.apache.kafka.connect.transforms.Cast$Key",
     "transforms.Cast.spec": "string",
-    "redis.uri": "redis://redis-12384.int.jph.jphaugla.demo-rlec.redislabs.com:12384",
+    "redis.uri": "redis://redis-15229.int.jph.jphaugla.demo-rlec.redislabs.com:15229",
     "redis.password": "redis123",
     "redis.type": "HASH",
     "redis.key": "Trans",
     "redis.separator": ":"
   }
 }
-} ' http://localhost:8083/connectors -w "\n"
+} ' http://172.172.133.201:8083/connectors -w "\n"

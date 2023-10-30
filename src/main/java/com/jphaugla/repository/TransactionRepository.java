@@ -5,20 +5,14 @@ import com.jphaugla.domain.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -41,15 +35,15 @@ public class TransactionRepository{
 
 	public String create(Transaction transaction) {
 		log.info("entering TransactionReposistory create transaction " + transaction.toString());
-		if (transaction.getInitialDate() == null) {
+		if (transaction.getInitialdate() == null) {
 			long currentTimeMillis = System.currentTimeMillis();
-			transaction.setInitialDate(Long.toString(currentTimeMillis));
+			transaction.setInitialdate(Long.toString(currentTimeMillis));
 		}
 
 		Map<Object, Object> transactionHash = objectMapper.convertValue(transaction, Map.class);
 		//  remove null map values
 		while (transactionHash.values().remove(null));
-		String fullKey = makeKey(transaction.getTranId());
+		String fullKey = makeKey(transaction.getTranid());
 		log.info("full key is " + fullKey);
 		stringRedisTemplate.opsForHash().putAll(fullKey, transactionHash);
 		// redisTemplate.opsForHash().putAll("Transaction:" + transaction.getTransactionId(), transactionHash);

@@ -6,9 +6,9 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 
 import java.io.Serializable;
-import java.util.Date;
-@Data
 
+@Data
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -16,25 +16,26 @@ import java.util.Date;
 
 
 public class Transaction implements Serializable {
-    private String tranId;
-    private String accountNo;
+    @PrimaryKey
+    private String tranid;
+    private String accountno;
     // debit or credit
-    private String amountType;
+    private String amounttype;
     private String merchant;
-    private String referenceKeyType;
-    private String referenceKeyValue;
-    private String originalAmount;
+    private String referencekeytype;
+    private String referencekeyvalue;
+    private String originalamount;
     private String amount;
-    private String tranCd ;
+    private String trancd;
     private String description;
-    private String initialDate;
-    private String settlementDate;
-    private String postingDate;
+    private String initialdate;
+    private String settlementdate;
+    private String postingdate;
     //  this is authorized, posted, settled
     private String status   ;
-    private String disputeId;
-    private String transactionReturn;
+    private String disputeid;
+    private String transactionreturn;
     private String location;
-    private String transactionTags;
+    private String transactiontags;
 
 }
