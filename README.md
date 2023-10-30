@@ -132,6 +132,7 @@ cd Redisearch-Digital-Banking-redisTemplate/scripts
 verify data flowed in to redis using redis-cli
 
 * Call an Api to create the cassandra sink using provided script
+```bash
 ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
 cd Redisearch-Digital-Banking-redisTemplate/scripts
 #  change localhost to the local ip address for the kafka node in the last line.  Set the contactPoints to the local IP address for the cassandra node. 
