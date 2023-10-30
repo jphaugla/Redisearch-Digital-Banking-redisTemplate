@@ -118,7 +118,8 @@ cd Redisearch-Digital-Banking-redisTemplate/scripts
 ./saveTransaction.sh
 ```
 * verify transactions topic is created using kafka control center
-  *  if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
+  * in control center click on topics and then on the topics page, click messages
+  * if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
   * application will create the kafka topic on first usage of the topic.  
 * Call kafka API to create the RedisSink using provided script.  DO THIS FROM your localMaC
 ```bash
@@ -139,21 +140,13 @@ cd Redisearch-Digital-Banking-redisTemplate/scripts
 ```
 verify data flowed in to cassandra using cqlsh
 
-## Execute sample application 
-
-### Compile the code
+##  process larger record set
+verify generateData.sh says doKafkfa=true
 ```bash
-mvn clean package
-```
-###  run the jar file.   
-```bash
-java -jar target/redis-0.0.1-SNAPSHOT.jar
-```
-###  Test the application from a separate terminal window.  This script uses an API call to generate sample banking customers, accounts and transactions.  It uses Spring ASYNC techniques to generate higher load.  A flag chooses between running the transactions pipelined in Redis or in normal non-pipelined method.
-```bash
-source ./scripts/setEnv.sh
 ./scripts/generateData.sh
 ```
+Will see large number of records now in cassandra and redis
+
 Shows a benchmark test run of  generateData.sh on GCP servers.  Although, this test run is using redisearch 1.0 code base.  Need to rerun this test.
 <a href="" rel="Generate Data Benchmark"><img src="images/Benchmark.png" alt="" /></a>
 

@@ -217,11 +217,11 @@ public class BankGenerator {
 		} else if (transactionStat == "SETTLED") {
 			transaction.setSettlementdate(Long.toString(aNewDate.getTime()));
 			transaction.setInitialdate(Long.toString(date_minus_one.getTime()));
-			transaction.setPostingdate(Long.toString(oldDate.getTime()));
+			// transaction.setPostingdate(Long.toString(oldDate.getTime()));
 		} else {
 			transaction.setInitialdate(Long.toString(aNewDate.getTime()));
-			transaction.setPostingdate(Long.toString(oldDate.getTime()));
-			transaction.setSettlementdate(Long.toString(oldDate.getTime()));
+			// transaction.setPostingdate(Long.toString(oldDate.getTime()));
+			// transaction.setSettlementdate(Long.toString(oldDate.getTime()));
 		}
 		transaction.setLocation(location);
 		if(randomLocation<5) {

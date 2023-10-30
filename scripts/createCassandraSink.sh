@@ -8,7 +8,7 @@ curl -X POST -H "Content-Type: application/json" --data '
     "name": "cassandra-sink-trans",
     "connector.class": "com.datastax.kafkaconnector.DseSinkConnector",
     "tasks.max": "1",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "topics": "transactions",
     "contactPoints": "10.0.11.5",
