@@ -14,7 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-@JsonInclude(JsonInclude.Include.NON_NULL)
 
 
 public class Transaction implements Serializable {

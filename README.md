@@ -121,22 +121,30 @@ cd Redisearch-Digital-Banking-redisTemplate/scripts
   * in control center click on topics and then on the topics page, click messages
   * if you run saveTransaction.sh again while looking at the control center topic pane, the message will be visible.  If you put offset of 0, both messages will be visible.
   * application will create the kafka topic on first usage of the topic.  
-* Call kafka API to create the RedisSink using provided script.  DO THIS FROM your localMaC
+* Call kafka API to create the RedisSink using provided script.  DO THIS FROM your local Mac
 ```bash
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
 cd Redisearch-Digital-Banking-redisTemplate/scripts
-#  change localhost to the external/public  ip address for the kafka node in the last line. Make sure this is the public kafka IP and not the private  Verify the redis.uri and redis.password.
+#  change localhost to the external/public ip address for the kafka node in the last line. 
+#  Make sure this is the public kafka IP and not the private  
+#  Verify the redis.uri and redis.password.  (the redis.uri must be INTERNAL)
 ./createRedisSink.sh
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
 ./saveTransaction.sh
 ```
 verify data flowed in to redis using redis-cli
+```bash
+redis-cli -h <redis_external_endpoint.txt> -p <redis_port.txt> -a redis123
+>keys Trans*
+
 
 * Call an Api to create the cassandra sink using provided script
 ```bash
-ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
+# on local mac
 cd Redisearch-Digital-Banking-redisTemplate/scripts
-#  change localhost to the local ip address for the kafka node in the last line.  Set the contactPoints to the local IP address for the cassandra node. 
+#  change localhost to the public ip address for the kafka node in the last line.  
+# Set the contactPoints to the local IP address for the cassandra node. 
 ./createCassandraSink.sh
+ssh -i ~/.ssh/<sshkey> redislabs@<testernode public ip>
 ./saveTransaction.sh
 ```
 verify data flowed in to cassandra using cqlsh
