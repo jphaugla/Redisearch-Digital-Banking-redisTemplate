@@ -313,7 +313,7 @@ public class BankService {
 					log.info("cassandra has the data ");
 					// returnTransaction = cassandraTransactionCopytoTransaction(cassandraTransaction);
 					// write it back to redis
-					writeTransaction(cassandraTransactino, true);
+					writeTransaction(cassandraTransaction, true);
 				}
 			}
 		}
