@@ -83,6 +83,7 @@ java -jar target/redis-0.0.1-SNAPSHOT.jar
 ```
 
 ## Using terraform on azure for all components
+<a href="" rel="Deployment"><img src="images/deployment.png" alt="" /></a>
 * Use [this github](https://github.com/jphaugla/tfmodule-azure-redis-enterprise)  to deploy all of the components (including the application)
 * Check the [readme](https://github.com/jphaugla/tfmodule-azure-redis-enterprise/README.md) for the details on deploying this github including the cloning the github and working with Azure.  Completely deploy the terraform github for all deployments.  This will also deploy [this github](https://github.com/jphaugla/Redisearch-Digital-Banking-redisTemplate) inside the tester node.  The later application deployment instructions will be deployed within the tester node using ssh
 * maven and java will be installed by the ansible jobs for the tester node
