@@ -108,7 +108,7 @@ public class TransactionRepository{
 
 	public void addDispute(String tranId, String disputeId) {
 		String transactionKey = makeKey(tranId);
-		stringRedisTemplate.opsForHash().put(transactionKey, "disputeId", disputeId);
+		stringRedisTemplate.opsForHash().put(transactionKey, "disputeid", disputeId);
 
 	}
 	 public String makeKey(String tranId) {
